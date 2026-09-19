@@ -15,7 +15,8 @@ test('installer materializes preset, skill, and preserves unrelated AGENTS conte
     assert.match(readFileSync(join(root, 'AGENTS.md'), 'utf8'), /# My existing rules/)
     assert.match(readFileSync(join(root, 'AGENTS.md'), 'utf8'), /DSH-ENGINEERING-ROUTER:START/)
     assert.match(readFileSync(join(root, '.agent-presets', 'engineering-router', 'preset.yml'), 'utf8'), /Engineering Router/)
-    assert.match(readFileSync(join(root, 'skills', 'engineering-project-bootstrap', 'SKILL.md'), 'utf8'), /name: engineering-project-bootstrap/)\n    assert.match(readFileSync(join(root, 'skills', 'engineering-review-gate', 'SKILL.md'), 'utf8'), /name: engineering-review-gate/)
+    assert.match(readFileSync(join(root, 'skills', 'engineering-project-bootstrap', 'SKILL.md'), 'utf8'), /name: engineering-project-bootstrap/)
+    assert.match(readFileSync(join(root, 'skills', 'engineering-review-gate', 'SKILL.md'), 'utf8'), /name: engineering-review-gate/)
   } finally {
     if (oldHome === undefined) delete process.env.DSH_HOME
     else process.env.DSH_HOME = oldHome
