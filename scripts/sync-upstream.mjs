@@ -50,7 +50,7 @@ const REVIEW_TOOL_YAML = [
   '        toolName: engineering_review',
   '        enableRunInBackground: false',
   '        backgroundMode: one-shot',
-  '        maxDepth: 0',
+  '        maxDepth: 1',
   '        toolFilter:',
   '          allow:',
   '            - read',
