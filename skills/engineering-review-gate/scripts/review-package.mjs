@@ -54,7 +54,11 @@ function commit(ref) {
   return git(['rev-parse', '--verify', ref + '^{commit}'], root).stdout.trim()
 }
 
+const currentHead = commit('HEAD')
 const head = commit(args.head || 'HEAD')
+if (head !== currentHead) {
+  fail('--head must resolve to the current HEAD because this package also captures working-tree changes', 3)
+}
 
 let base
 if (args.base) {
@@ -132,7 +136,7 @@ const lines = [
   '- Name/status: ' + relOut + '/name-status.txt',
   '- Git status: ' + relOut + '/status.txt',
   '- Commit subjects + bodies: ' + relOut + '/commits.txt',
-  '- Untracked files: ' + relOut + '/untracked.txt',
+  '- Untracked files: ' + relOut + '/untracked.txt (names only; these files are not present in diff.patch)',
   '- git diff --check output: ' + relOut + '/diff-check.txt',
   '',
   '### Requirements',
@@ -151,6 +155,7 @@ const lines = [
   '',
   'Treat implementer claims as unverified. Read the diff and relevant requirements/evidence before judging.',
   'For behavior changes, build a Chain Evidence Matrix and verify actual source links rather than matching names.',
+  'Read any review-relevant untracked files named in untracked.txt directly; untracked content is intentionally not copied into the package.',
   'Do not modify the worktree. Missing proof is UNVERIFIED, not PASS.',
   '',
 ]
