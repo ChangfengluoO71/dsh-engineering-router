@@ -25,8 +25,21 @@ This repository is intentionally explicit about what was inspected versus what i
 - The current DSH tool catalog registers `phase_begin`, `read`, `glob`, and `grep` in this preset; unknown names in a subagent tool filter fail loudly rather than being ignored.
 - In-process spawn joins the parent's composed preset before applying child `persona` / `toolFilter`. Because Engineering Router bootstraps every fresh session, the reviewer allow-list must retain `phase_begin` or the child cannot unlock its read/search phase.
 - DSH depth semantics count the first child as depth 1. Therefore Engineering Review uses `maxDepth: 1`; `maxDepth: 0` would reject creation of the reviewer itself.
+- `@deepseek-ai/dsh-persona` requires `config.prefix`. The inspected DSH source declares `prefix: z.string().required()`. The raw `dsh-routing-suite/router-standard` fallback currently uses legacy `config.text`, so Engineering Router treats `text -> prefix` as an explicit compatibility patch rather than copying that fallback verbatim.
 
 DSH remains a fast-moving prerelease project. These are research baselines, not a promise that every future 0.1.x build is compatible.
+
+## Real-run regression baseline
+
+The first v0.2.0 acceptance run on DSH `0.1.5-rc.2` proved install/materialization but failed before session creation:
+
+```text
+agent-preset/invalid
+@deepseek-ai/dsh-persona
+$.prefix missing required value
+```
+
+The installed Engineering Router had `config.text`; the same-host working Router Standard used `config.prefix`. v0.2.1 fixes that mount blocker and adds a regression gate. This document still does **not** claim v0.2.1 runtime acceptance until the real DSH mount + reviewer controls are rerun.
 
 ## Upgrade gate
 
@@ -35,7 +48,7 @@ Before publishing an upstream refresh:
 1. sync to an **exact commit**;
 2. inspect upstream preset/module changes;
 3. verify namespace patch still hits every stateful `router-standard` key;
-4. run `npm run check` and `npm test`;
+4. run `npm run check` and `npm test`; `npm run check` must pass the packaged persona contract (`config.prefix`, never legacy `config.text`);
 5. verify `agent.cordis.yml` local relative imports exist;
 6. install into an isolated `DSH_HOME`;
 7. boot Web and create a fresh Engineering Router session;
