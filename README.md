@@ -8,6 +8,7 @@ It combines four layers without turning them into one giant prompt:
 - **Engineering policy:** a compact managed block in `$DSH_HOME/AGENTS.md`.
 - **Project workflow:** Trellis when a repository uses `.trellis/`.
 - **Code knowledge:** Graphify through DSH-compatible Agent Skills, used on demand.
+- **Independent review:** a fresh read-only DSH reviewer plus Chain Integrity evidence for behavior changes.
 
 The router code stays intentionally close to upstream. The only runtime fork required by default is **namespace isolation**: disk/global state named `router-standard` is changed to `engineering-router` so the original Router Standard and this preset can coexist safely.
 
@@ -27,8 +28,12 @@ $DSH_HOME/
 ├─ .agent-presets/
 │  └─ engineering-router/                    # complete DSH agent preset
 └─ skills/
-   └─ engineering-project-bootstrap/
-      └─ SKILL.md
+   ├─ engineering-project-bootstrap/
+   │  └─ SKILL.md
+   └─ engineering-review-gate/
+      ├─ SKILL.md
+      ├─ references/
+      └─ scripts/review-package.mjs
 ```
 
 It does **not** overwrite an unmanaged `engineering-router` directory. If a managed preset was edited locally, upgrades preserve those edits and log a warning unless the bundle config explicitly sets `force: true`.
@@ -63,6 +68,41 @@ graphify install --project --platform agents
 Do not blindly run these commands if the installed versions expose different CLI contracts; inspect `--help` first.
 
 Graphify is a **derived navigation layer**, not a source of truth. Use query/path/explain to locate code, then verify against current source/contracts/tests. Do not rebuild the graph on every small task.
+
+## Independent Review Gate
+
+For non-trivial behavior changes, cross-module/API/schema/persistence/security work, major bug fixes, and final review of multi-task branches, use the installed **engineering-review-gate** skill.
+
+The preset exposes `engineering_review` only in the verification phase. It is implemented with DSH's in-process `spawn` provider so the reviewer starts with a **fresh conversation**, not the implementer's reasoning history. Its child tool surface is mechanically restricted to:
+
+```text
+read
+glob
+grep
+```
+
+The reviewer is foreground, one-shot, and capped at `maxDepth: 1`: the first-level reviewer may be created, while its filtered tool surface contains no delegation tools and it cannot recursively create another reviewer.
+
+The gate checks three distinct things:
+
+1. **Spec compliance** — was the requested behavior actually implemented?
+2. **Code quality** — correctness, error paths, compatibility, security, maintainability.
+3. **Chain Integrity** — does each behavior-level AC connect through the real implementation path?
+
+```text
+Requirement / AC
+  -> Entry Point
+  -> Boundary / Interface
+  -> Core Logic
+  -> State / Persistence
+  -> Downstream Consumer
+  -> Observable Result
+  -> Verification Evidence
+```
+
+Reviewer judgment is not acceptance authority. Tests, contracts, builds, and required real runs remain the evidence that proves behavior. Missing chain evidence is reported as **UNVERIFIED**, never guessed into PASS.
+
+A deterministic helper creates a compact review package under the repository's Git metadata directory, including exact base/head, commit subjects **and bodies**, working-tree diff, status, untracked names, and references to requirements/evidence. This keeps the reviewer focused without copying the implementer's entire session.
 
 ## Design rules
 
