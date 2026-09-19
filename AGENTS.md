@@ -9,6 +9,7 @@ This repository packages a DSH Host installer plus a pinned derivative of `dsh-r
 - For DSH/Trellis/Graphify compatibility facts, inspect current official/upstream source and record exact commits; do not rely on old README claims or model memory.
 - For review-gate changes, also inspect the pinned DSH subagent/toolFilter contract and `engineering-review-gate` tests. Preserve the fresh-spawn, read-only, no-recursion reviewer boundary and Chain Integrity semantics.
 - Run `npm run check` and `npm test` before reporting a change verified. A DSH runtime compatibility claim additionally needs an isolated real DSH boot/session check.
+- Any change to `agent.cordis.yml`, upstream sync transforms, or DSH plugin config must preserve a mountable preset. Static/package PASS is not runtime acceptance; rerun the preset-mount smoke and relevant real-session gate after such changes.
 - Do not add memory, compaction, lifecycle, or routing plugins as hard dependencies without documenting ownership overlap and measured benefit.
 - Preserve unrelated work. Do not use destructive Git cleanup. Remove only task-owned temporary artifacts before handoff.
 - Keep `Implemented`, `Verified`, `Merged`, `Published`, and runtime-`Accepted` states distinct.

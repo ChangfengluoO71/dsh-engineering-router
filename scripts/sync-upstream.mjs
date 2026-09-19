@@ -2,6 +2,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { normalizePersonaConfig } from './compat-patches.mjs'
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url))
 const LOCK_FILE = join(ROOT, 'upstream.lock.json')
@@ -91,7 +92,7 @@ function patchBootstrap(c) {
 }
 
 function patchAgentCordis(c) {
-  let out = c.replace(
+  let out = normalizePersonaConfig(c).replace(
     '# The `router-standard` agent preset:',
     '# The `engineering-router` agent preset (derived from router-standard):',
   )

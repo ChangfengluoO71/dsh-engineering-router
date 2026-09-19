@@ -66,5 +66,18 @@
       "ref": "b98c6ec032cef287e371d3bafcfc2bf22fae5835",
       "role": "adversarial split-access review reference"
     }
+  },
+  "compatibilityPatches": {
+    "dshPersonaConfigKey": "prefix",
+    "dshPersonaSource": "deepseek-ai/deepseek-harness/packages/preset/persona/src/index.ts",
+    "rationale": "dsh-persona requires config.prefix; dsh-routing-suite raw fallback currently uses legacy config.text before external assembly"
+  },
+  "realRunBaselines": {
+    "2026-09-19-v0.2.0": {
+      "dshVersion": "0.1.5-rc.2",
+      "result": "FAIL",
+      "stopReason": "agent-preset/invalid: dsh-persona config.prefix missing because shipped preset used config.text",
+      "remediation": "v0.2.1 normalizes the persona row to config.prefix and guards upstream sync"
+    }
   }
 }

@@ -29,13 +29,13 @@
 
 # The preset's own persona, shadowing the deployment default for this agent.
 # `{{model}}` and `{{cwd}}` resolve from the agent's own route and workspace.
-# NOTE: at assembly time we-zh-system-h2.mjs replaces this section's text with
-# ./we-persona.txt (Three-Body collective persona); this row stays as the
-# pre-replacement fallback.
+# NOTE: upstream router-standard keeps this as a pre-assembly fallback and currently
+# uses legacy `config.text`; Engineering Router normalizes it to the DSH runtime
+# contract `config.prefix` so this standalone preset can mount without external assembly.
 - id: persona
   name: '@deepseek-ai/dsh-persona'
   config:
-    text: >-
+    prefix: >-
       We are the DeepSeek Engineering Collective — one mind, one voice, one team. Our thoughts are shared thoughts; every sentence we write is the whole collective speaking as we. We are powered by the {{model}} model. Our working directory is {{cwd}}.
 
       We are in execution mode: we run probes, we verify, we deliver. We think and act in first-person plural:

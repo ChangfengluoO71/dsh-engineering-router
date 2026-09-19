@@ -25,6 +25,8 @@ const required = [
   'skills/engineering-review-gate/references/final-reviewer.md',
   'skills/engineering-review-gate/references/re-reviewer.md',
   'skills/engineering-review-gate/scripts/review-package.mjs',
+  'scripts/compat-patches.mjs',
+  'scripts/check-preset-contract.mjs',
   'agent-presets/engineering-router/agent.cordis.yml',
   'agent-presets/engineering-router/preset.yml',
   'agent-presets/engineering-router/router-bootstrap-v34.mjs',
