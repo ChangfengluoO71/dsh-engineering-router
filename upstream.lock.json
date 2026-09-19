@@ -45,6 +45,26 @@
       "repository": "xiaobright/dsh-anchored-standard",
       "ref": "dda23ef119e3715f417d73f72eca407732846d1a",
       "status": "frozen research reference"
+    },
+    "superpowers": {
+      "repository": "obra/superpowers",
+      "ref": "5bf4e78011075bcfc0dc295f0724994cd123ee71",
+      "role": "review package and fresh-context reviewer reference"
+    },
+    "dshDoublecheck": {
+      "repository": "PerryLink/dsh-doublecheck",
+      "ref": "ebd1d447048adf5b7ece151b2d295ba938acef1b",
+      "role": "adversarial review and delivery-proof reference"
+    },
+    "agenticDeliveryOS": {
+      "repository": "juliusz-cwiakalski/agentic-delivery-os",
+      "ref": "cb20b58fcd3d882e49d06b1156b0bebaf1bc9e12",
+      "role": "readiness/code-review gate reference"
+    },
+    "staffEngineerMode": {
+      "repository": "sirmarkz/staff-engineer-mode",
+      "ref": "b98c6ec032cef287e371d3bafcfc2bf22fae5835",
+      "role": "adversarial split-access review reference"
     }
   }
 }
