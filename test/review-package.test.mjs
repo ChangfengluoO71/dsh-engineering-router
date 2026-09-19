@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 
@@ -58,7 +58,7 @@ test('review package captures committed, staged/unstaged, untracked, requirement
     assert.ok(packagePath)
     assert.equal(existsSync(packagePath), true)
 
-    const dir = join(packagePath, '..')
+    const dir = dirname(packagePath)
     const review = readFileSync(packagePath, 'utf8')
     const diff = readFileSync(join(dir, 'diff.patch'), 'utf8')
     const commits = readFileSync(join(dir, 'commits.txt'), 'utf8')
