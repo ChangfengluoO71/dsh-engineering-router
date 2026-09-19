@@ -12,7 +12,7 @@ function git(args, cwd, options = {}) {
   const r = spawnSync('git', args, {
     cwd,
     encoding: 'utf8',
-    shell: process.platform === 'win32',
+    shell: false,
     maxBuffer: 64 * 1024 * 1024,
   })
   if (r.error) throw r.error
