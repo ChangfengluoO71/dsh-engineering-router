@@ -11,7 +11,7 @@ This is a review gate, not a second implementation workflow. Trellis remains the
 
 - The implementer does not grade its own work.
 - The reviewer is a fresh spawn child with no implementer conversation history.
-- The reviewer is mechanically read-only: only read, glob, and grep; no shell, edit, delegation, or workflow tools.
+- The reviewer is mechanically workspace-read-only: `phase_begin` is retained only to bootstrap its inherited Router session, then it has `read`, `glob`, and `grep`; no shell, edit, delegation, or workflow tools.
 - Reviewer judgment finds risks; deterministic tests/contracts/real runs prove behavior.
 - Missing evidence is UNVERIFIED, never PASS.
 
