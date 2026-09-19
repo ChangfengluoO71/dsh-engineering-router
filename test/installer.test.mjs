@@ -49,5 +49,6 @@ test('router persistent namespace is isolated from router-standard', () => {
     assert.match(c, /engineering-router/)
     assert.doesNotMatch(c, /Symbol\.for\('router-standard\./)
     assert.doesNotMatch(c, /join\(dshHomeForState\(\), 'router-standard'/)
+    assert.doesNotMatch(c, /join\(process\.env\.DSH_HOME \|\| homedir\(\), 'engineering-router'/)
   }
 })
