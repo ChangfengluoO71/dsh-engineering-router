@@ -1,0 +1,53 @@
+{
+  "name": "dsh-engineering-router",
+  "version": "0.1.0",
+  "description": "Personal DSH engineering preset installer: Router Standard derivative + AGENTS rules + Trellis/Graphify bootstrap skill.",
+  "type": "module",
+  "main": "./lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "agent-presets",
+    "assets",
+    "skills",
+    "scripts",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "upstream.lock.json",
+    "licenses"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ChangfengluoO71/dsh-engineering-router.git"
+  },
+  "homepage": "https://github.com/ChangfengluoO71/dsh-engineering-router",
+  "bugs": {
+    "url": "https://github.com/ChangfengluoO71/dsh-engineering-router/issues"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "agent-preset",
+    "router",
+    "trellis",
+    "graphify"
+  ],
+  "scripts": {
+    "check": "node --check lib/index.js && node --check scripts/sync-upstream.mjs && node scripts/check-package.mjs && node agent-presets/engineering-router/router-bootstrap-v34.selftest.mjs",
+    "test": "node --test test/*.test.mjs"
+  }
+}

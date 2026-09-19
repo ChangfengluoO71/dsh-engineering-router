@@ -1,0 +1,6 @@
+# Host-side installer only. The Engineering Router itself is an agent preset,
+# materialized into $DSH_HOME/.agent-presets/engineering-router on boot.
+- insert:
+    - id: dsh-engineering-router-installer
+      name: dsh-engineering-router
+      config: {}
