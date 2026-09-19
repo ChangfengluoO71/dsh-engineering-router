@@ -38,10 +38,10 @@ const files = [
 
 function patchBootstrap(c) {
   return c
-    .replace("join(dshHomeForState(), 'router-standard', 'stages.json')", "join(dshHomeForState(), 'engineering-router', 'stages.json')")
+    .replaceAll("process.env.DSH_HOME || homedir()", "dshHomeForState()")
+    .replaceAll("join(dshHomeForState(), 'router-standard',", "join(dshHomeForState(), 'engineering-router',")
     .replaceAll("Symbol.for('router-standard.restrictLift')", "Symbol.for('engineering-router.restrictLift')")
     .replaceAll("Symbol.for('router-standard.overrides')", "Symbol.for('engineering-router.overrides')")
-    .replaceAll("join(process.env.DSH_HOME || homedir(), 'router-standard')", "join(dshHomeForState(), 'engineering-router')")
 }
 
 for (const file of files) {
