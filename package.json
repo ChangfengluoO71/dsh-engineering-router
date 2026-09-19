@@ -18,20 +18,36 @@
     "README.md",
     "LICENSE",
     "THIRD_PARTY_NOTICES.md",
-    "upstream.lock.json"
+    "upstream.lock.json",
+    "licenses"
   ],
   "license": "MIT",
-  "engines": { "node": ">=20" },
-  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } },
+  "engines": {
+    "node": ">=20"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ChangfengluoO71/dsh-engineering-router.git"
   },
   "homepage": "https://github.com/ChangfengluoO71/dsh-engineering-router",
-  "bugs": { "url": "https://github.com/ChangfengluoO71/dsh-engineering-router/issues" },
-  "keywords": ["deepseek-harness", "dsh", "agent-preset", "router", "trellis", "graphify"],
+  "bugs": {
+    "url": "https://github.com/ChangfengluoO71/dsh-engineering-router/issues"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "agent-preset",
+    "router",
+    "trellis",
+    "graphify"
+  ],
   "scripts": {
-    "check": "node --check lib/index.js && node --check scripts/sync-upstream.mjs",
+    "check": "node --check lib/index.js && node --check scripts/sync-upstream.mjs && node agent-presets/engineering-router/router-bootstrap-v34.selftest.mjs",
     "test": "node --test test/*.test.mjs"
   }
 }
