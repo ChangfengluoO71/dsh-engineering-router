@@ -73,15 +73,16 @@ Graphify is a **derived navigation layer**, not a source of truth. Use query/pat
 
 For non-trivial behavior changes, cross-module/API/schema/persistence/security work, major bug fixes, and final review of multi-task branches, use the installed **engineering-review-gate** skill.
 
-The preset exposes `engineering_review` only in the verification phase. It is implemented with DSH's in-process `spawn` provider so the reviewer starts with a **fresh conversation**, not the implementer's reasoning history. Its child tool surface is mechanically restricted to:
+The preset exposes `engineering_review` only in the verification phase. It is implemented with DSH's in-process `spawn` provider so the reviewer starts with a **fresh conversation**, not the implementer's reasoning history. Its child tool surface is mechanically restricted to the Router bootstrap control plus read-only workspace tools:
 
 ```text
+phase_begin
 read
 glob
 grep
 ```
 
-The reviewer is foreground, one-shot, and capped at `maxDepth: 1`: the first-level reviewer may be created, while its filtered tool surface contains no delegation tools and it cannot recursively create another reviewer.
+The one `phase_begin` call is required because an in-process child joins the parent's preset and therefore inherits Router bootstrap; it does not grant workspace mutation. The reviewer is foreground, one-shot, and capped at `maxDepth: 1`: the first-level reviewer may be created, while its filtered tool surface contains no delegation, shell, or mutation tools and it cannot recursively create another reviewer.
 
 The gate checks three distinct things:
 
