@@ -47,7 +47,7 @@ PowerShell example:
 
 --requirements and --evidence may be repeated and are optional when the project has no corresponding artifact. The helper writes under .git/dsh-engineering-review/, so it does not dirty the worktree.
 
-The package contains exact base/head, commit subjects and bodies, status/name-status/stat, the full working-tree diff against base, untracked file names, and referenced requirements/evidence paths.
+The package contains exact base/head, commit subjects and bodies, status/name-status/stat, the full tracked working-tree diff against base, untracked file names, and referenced requirements/evidence paths. Untracked file contents are not copied; the reviewer reads any relevant untracked paths directly so the package does not duplicate arbitrary binaries or secrets.
 
 ## 3. Dispatch the independent reviewer
 
