@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 
 const preset = readFileSync(new URL('../agent-presets/engineering-router/agent.cordis.yml', import.meta.url), 'utf8')
+const syncScript = readFileSync(new URL('../scripts/sync-upstream.mjs', import.meta.url), 'utf8')
 
 test('engineering reviewer is a fresh one-shot spawn with a read-only tool surface', () => {
   const start = preset.indexOf('- id: tool-subagent-engineering-review')
@@ -43,4 +44,16 @@ test('progressive router exposes engineering_review only in verification stage',
     ).join('\n')
     assert.doesNotMatch(earlier, /engineering_review/)
   }
+})
+
+
+test('upstream sync re-applies the reviewer contract', () => {
+  assert.match(syncScript, /toolName: engineering_review/)
+  assert.match(syncScript, /maxDepth: 1/)
+  assert.match(syncScript, /- phase_begin/)
+  assert.match(syncScript, /- read/)
+  assert.match(syncScript, /- glob/)
+  assert.match(syncScript, /- grep/)
+  assert.match(syncScript, /verification stage reviewer tool/)
+  assert.match(syncScript, /Missing evidence is UNVERIFIED/)
 })
