@@ -92,3 +92,26 @@ test('review package rejects an empty review set', () => {
     rmSync(root, { recursive: true, force: true })
   }
 })
+
+
+test('review package rejects a historical --head when working-tree capture is enabled', () => {
+  const root = mkdtempSync(join(tmpdir(), 'engineering-review-head-'))
+  try {
+    git(['init'], root)
+    git(['config', 'user.email', 'review-test@example.invalid'], root)
+    git(['config', 'user.name', 'Review Test'], root)
+    writeFileSync(join(root, 'app.txt'), 'one\n', 'utf8')
+    git(['add', '.'], root)
+    git(['commit', '-m', 'feat: first'], root)
+    const first = git(['rev-parse', 'HEAD'], root)
+    writeFileSync(join(root, 'app.txt'), 'one\ntwo\n', 'utf8')
+    git(['add', '.'], root)
+    git(['commit', '-m', 'feat: second'], root)
+
+    const result = run(process.execPath, [script, '--base', first, '--head', first], root, true)
+    assert.notEqual(result.status, 0)
+    assert.match(result.stderr, /--head must resolve to the current HEAD/)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
