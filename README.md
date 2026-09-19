@@ -12,6 +12,8 @@ It combines four layers without turning them into one giant prompt:
 
 The router code stays intentionally close to upstream. The only runtime fork required by default is **namespace isolation**: disk/global state named `router-standard` is changed to `engineering-router` so the original Router Standard and this preset can coexist safely.
 
+A second compatibility patch is intentionally maintained: the raw Router Standard fallback currently uses `@deepseek-ai/dsh-persona` with `config.text`, while the DSH runtime schema requires `config.prefix`. Engineering Router normalizes that row during upstream sync and fails loud if the upstream shape changes unexpectedly.
+
 ## Install
 
 ```powershell
@@ -144,8 +146,8 @@ You may pass `main`; the script resolves it to an exact SHA before writing the l
 ## Tests
 
 ```powershell
-npm test
 npm run check
+npm test
 ```
 
 The test suite uses temporary `DSH_HOME` directories and does not modify your real DSH home.
