@@ -39,11 +39,14 @@ The installed helper lives with this skill. Resolve DSH_HOME first; its normal d
 
 Git Bash / POSIX example:
 
-    node "$HOME/.dsh/skills/engineering-review-gate/scripts/review-package.mjs" --mode task --base <BASE_SHA> --requirements <task-or-spec-path> --evidence <evidence-path>
+    DSH_ROOT="${DSH_HOME:-$HOME/.dsh}"
+    node "$DSH_ROOT/skills/engineering-review-gate/scripts/review-package.mjs" --mode task --base <BASE_SHA> --requirements <task-or-spec-path> --evidence <evidence-path>
 
 PowerShell example:
 
-    node "$HOME/.dsh/skills/engineering-review-gate/scripts/review-package.mjs" --mode task --base <BASE_SHA> --requirements <task-or-spec-path> --evidence <evidence-path>
+    $dshRoot = if ($env:DSH_HOME) { $env:DSH_HOME } else { Join-Path $HOME ".dsh" }
+    $reviewScript = Join-Path $dshRoot "skills\engineering-review-gate\scripts\review-package.mjs"
+    node $reviewScript --mode task --base <BASE_SHA> --requirements <task-or-spec-path> --evidence <evidence-path>
 
 --requirements and --evidence may be repeated and are optional when the project has no corresponding artifact. The helper writes under .git/dsh-engineering-review/, so it does not dirty the worktree.
 
