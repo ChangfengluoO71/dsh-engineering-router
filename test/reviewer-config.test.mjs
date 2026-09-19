@@ -20,9 +20,9 @@ test('engineering reviewer is a fresh one-shot spawn with a read-only tool surfa
   const personaStart = block.indexOf('persona:')
   assert.ok(filterStart >= 0 && personaStart > filterStart)
   const filter = block.slice(filterStart, personaStart)
-  for (const name of ['read', 'glob', 'grep']) assert.match(filter, new RegExp('- ' + name + '\\\\b'))
+  for (const name of ['read', 'glob', 'grep']) assert.match(filter, new RegExp('- ' + name + '\\b'))
   for (const name of ['write', 'edit', 'bash', 'pwsh', 'skill', 'subagent']) {
-    assert.doesNotMatch(filter, new RegExp('- ' + name + '\\\\b'))
+    assert.doesNotMatch(filter, new RegExp('- ' + name + '\\b'))
   }
 
   assert.match(block, /fresh context/i)
