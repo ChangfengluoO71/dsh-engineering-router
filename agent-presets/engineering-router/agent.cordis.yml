@@ -262,6 +262,7 @@
         maxDepth: 1
         toolFilter:
           allow:
+            - phase_begin
             - read
             - glob
             - grep
@@ -271,7 +272,7 @@
           Start from the supplied review package and requirements. Review spec compliance, code quality, and chain integrity.
           For every behavior-level acceptance criterion, trace the implemented path as far as applicable:
           Requirement/AC -> Entry Point -> Boundary/Interface -> Core Logic -> State/Persistence -> Downstream Consumer -> Observable Result -> Verification Evidence.
-          Use only read, glob, and grep. You are strictly read-only: do not edit files, run commands, dispatch subagents, or manufacture evidence.
+          Call phase_begin once if the inherited Router bootstrap requires it; after that use only read, glob, and grep. You are strictly workspace-read-only: do not edit files, run shell commands, dispatch subagents, or manufacture evidence.
           Do not broaden into a repository-wide crawl unless a concrete cross-cutting risk requires one focused check; state the risk and what you inspected.
           Missing evidence is UNVERIFIED, never PASS. A passing unit test does not prove an end-to-end chain unless it exercises the relevant boundary.
           Findings must cite file:line when possible and separate Critical, Important, and Minor severity.
