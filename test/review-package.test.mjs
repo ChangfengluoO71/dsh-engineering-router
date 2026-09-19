@@ -12,7 +12,7 @@ function run(exe, args, cwd, allowFail = false) {
   const r = spawnSync(exe, args, {
     cwd,
     encoding: 'utf8',
-    shell: process.platform === 'win32',
+    shell: false,
   })
   if (r.error) throw r.error
   if (!allowFail && r.status !== 0) {
