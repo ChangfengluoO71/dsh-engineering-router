@@ -21,6 +21,9 @@ This repository is intentionally explicit about what was inspected versus what i
 - Preset composition is agent-plane; Host registries/sandbox/persistence/model route remain host-plane.
 - `dsh-agent-instructions` reads applicable AGENTS/CLAUDE instructions.
 - DSH skill discovery supports project/global Agent Skills roots, allowing Graphify/Trellis integration without embedding their code in this preset.
+- `@deepseek-ai/dsh-tool-subagent` supports a fresh `spawn` provider, per-child `persona`, `toolFilter`, foreground one-shot execution, and numeric `maxDepth`.
+- The current DSH tool catalog registers `read`, `glob`, and `grep`; unknown names in a subagent tool filter fail loudly rather than being ignored.
+- DSH depth semantics count the first child as depth 1. Therefore Engineering Review uses `maxDepth: 1`; `maxDepth: 0` would reject creation of the reviewer itself.
 
 DSH remains a fast-moving prerelease project. These are research baselines, not a promise that every future 0.1.x build is compatible.
 
@@ -37,6 +40,9 @@ Before publishing an upstream refresh:
 7. boot Web and create a fresh Engineering Router session;
 8. verify first-turn routing, phase progression, plan mode, shell behavior, compaction, skill discovery, and delivery gate;
 9. verify original Router Standard can coexist without shared stage/override state;
-10. only then update the normal profile.
+10. verify `engineering_review` appears only in the verification phase and successfully starts a fresh reviewer;
+11. verify the reviewer sees only `read`, `glob`, and `grep`, cannot mutate/delegate, can read a generated review package, and returns a foreground verdict;
+12. run one deliberate broken-chain fixture or real project case and confirm missing integration evidence becomes `UNVERIFIED`/FAIL rather than PASS;
+13. only then update the normal profile.
 
 Do not use stars, README claims, or a broad peer-dependency range as a substitute for this gate.
