@@ -2,6 +2,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { normalizePersonaConfig } from './compat-patches.mjs'
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url))
 const LOCK_FILE = join(ROOT, 'upstream.lock.json')
@@ -90,30 +91,8 @@ function patchBootstrap(c) {
   return out
 }
 
-function patchPersonaConfig(c) {
-  const row = [
-    '- id: persona',
-    "  name: '@deepseek-ai/dsh-persona'",
-    '  config:',
-  ].join('\n')
-  const start = c.indexOf(row)
-  if (start === -1) throw new Error('upstream shape changed; cannot find dsh-persona row')
-
-  const next = c.indexOf('\n- id:', start + row.length)
-  const end = next === -1 ? c.length : next
-  const block = c.slice(start, end)
-
-  if (/\n    prefix:\s/.test(block)) return c
-  if (!/\n    text:\s/.test(block)) {
-    throw new Error('upstream shape changed; dsh-persona config has neither prefix nor legacy text key')
-  }
-
-  const patched = block.replace(/\n    text:(\s)/, '\n    prefix:$1')
-  return c.slice(0, start) + patched + c.slice(end)
-}
-
 function patchAgentCordis(c) {
-  let out = patchPersonaConfig(c).replace(
+  let out = normalizePersonaConfig(c).replace(
     '# The `router-standard` agent preset:',
     '# The `engineering-router` agent preset (derived from router-standard):',
   )
