@@ -1,7 +1,7 @@
 {
   "name": "dsh-engineering-router",
-  "version": "0.1.0",
-  "description": "Personal DSH engineering preset installer: Router Standard derivative + AGENTS rules + Trellis/Graphify bootstrap skill.",
+  "version": "0.2.0",
+  "description": "Personal DSH engineering preset: Router Standard derivative + independent review gate + AGENTS/Trellis/Graphify workflow.",
   "type": "module",
   "main": "./lib/index.js",
   "exports": {
@@ -47,7 +47,7 @@
     "graphify"
   ],
   "scripts": {
-    "check": "node --check lib/index.js && node --check scripts/sync-upstream.mjs && node scripts/check-package.mjs && node agent-presets/engineering-router/router-bootstrap-v34.selftest.mjs",
+    "check": "node --check lib/index.js && node --check scripts/sync-upstream.mjs && node --check skills/engineering-review-gate/scripts/review-package.mjs && node scripts/check-package.mjs && node agent-presets/engineering-router/router-bootstrap-v34.selftest.mjs",
     "test": "node --test test/*.test.mjs"
   }
 }

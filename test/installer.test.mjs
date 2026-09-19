@@ -16,6 +16,7 @@ test('installer materializes preset, skill, and preserves unrelated AGENTS conte
     assert.match(readFileSync(join(root, 'AGENTS.md'), 'utf8'), /DSH-ENGINEERING-ROUTER:START/)
     assert.match(readFileSync(join(root, '.agent-presets', 'engineering-router', 'preset.yml'), 'utf8'), /Engineering Router/)
     assert.match(readFileSync(join(root, 'skills', 'engineering-project-bootstrap', 'SKILL.md'), 'utf8'), /name: engineering-project-bootstrap/)
+    assert.match(readFileSync(join(root, 'skills', 'engineering-review-gate', 'SKILL.md'), 'utf8'), /name: engineering-review-gate/)
   } finally {
     if (oldHome === undefined) delete process.env.DSH_HOME
     else process.env.DSH_HOME = oldHome
@@ -28,10 +29,10 @@ test('managed preset refuses to overwrite local edits unless force is explicit',
   const oldHome = process.env.DSH_HOME
   process.env.DSH_HOME = root
   try {
-    apply({}, { installGlobalRules: false, installBootstrapSkill: false })
+    apply({}, { installGlobalRules: false, installBootstrapSkill: false, installReviewSkill: false })
     const file = join(root, '.agent-presets', 'engineering-router', 'preset.yml')
     writeFileSync(file, 'name: Local Customization\n', 'utf8')
-    apply({}, { installGlobalRules: false, installBootstrapSkill: false })
+    apply({}, { installGlobalRules: false, installBootstrapSkill: false, installReviewSkill: false })
     assert.match(readFileSync(file, 'utf8'), /Local Customization/)
     apply({}, { force: true, installGlobalRules: false, installBootstrapSkill: false })
     assert.match(readFileSync(file, 'utf8'), /Engineering Router/)

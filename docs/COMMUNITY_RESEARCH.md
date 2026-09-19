@@ -14,6 +14,10 @@ This project intentionally borrows *mechanisms* from the DSH ecosystem without t
 | `AndyZHENG0715/dsh-recovery` | `85c6bebd82c21e5586d6fb1bb6d31f9eaa731c3d` | Snapshot/rollback/safe-mode thinking | Recovery is a separate operational concern; this project only adopts conservative backup-before-replace behavior |
 | `KYinCode/dsh-hot-installer` | `b9bd81cadfaf6f71a135718f5090c3e644ce6020` | Runtime lifecycle lessons and honest hot-reload boundaries | Not needed for normal installation; DSH's official bundle boundary remains the production source of truth |
 | `xiaobright/dsh-anchored-standard` | `dda23ef119e3715f417d73f72eca407732846d1a` | Historical evidence for narrow first-turn tool surfaces / trajectory anchoring | Project is frozen and model-specific; treat it as research, not the current runtime baseline |
+| `obra/superpowers` | `5bf4e78011075bcfc0dc295f0724994cd123ee71` | Fresh-context reviewer, task-scoped review, final whole-branch review, compact review package, scoped re-review | We adopt the review mechanics without importing its whole development workflow |
+| `PerryLink/dsh-doublecheck` | `ebd1d447048adf5b7ece151b2d295ba938acef1b` | Adversarial delivery review and explicit proof/verify separation | Trellis already owns requirements/task state, so a second full workflow state machine would overlap |
+| `juliusz-cwiakalski/agentic-delivery-os` | `cb20b58fcd3d882e49d06b1156b0bebaf1bc9e12` | Independent readiness/review gates, durable findings and remediation loop | Full delivery OS is broader than this preset; we keep the gate concept |
+| `sirmarkz/staff-engineer-mode` | `b98c6ec032cef287e371d3bafcfc2bf22fae5835` | Adversarial split-access principle: happy-path author should not author final adversarial proof | We implement the principle through a fresh read-only DSH reviewer |
 
 ## Resulting stack
 
@@ -22,9 +26,11 @@ DSH Host
   └─ Engineering Router preset
        ├─ upstream-derived routing/tool-disclosure runtime
        ├─ DSH Agent Instructions → global/project AGENTS
-       └─ DSH Skill Filesystem
-            ├─ Trellis project skills
-            └─ Graphify generic Agent Skill
+       ├─ DSH Skill Filesystem
+       │    ├─ Trellis project skills
+       │    ├─ Graphify generic Agent Skill
+       │    └─ Engineering Review Gate
+       └─ fresh read-only engineering_review subagent
 ```
 
 The rule is **one owner per concern**:
@@ -34,5 +40,6 @@ The rule is **one owner per concern**:
 - Trellis owns project task/spec/workflow state.
 - Graphify owns derived code-relationship navigation.
 - Tests/contracts/current source remain the final implementation evidence.
+- Independent reviewer owns adversarial inspection, but **not** acceptance; deterministic/real-run evidence closes the gate.
 
 Additional memory, compaction, capability-menu, recovery, or hot-runtime plugins are opt-in only when they solve a measured problem and do not create a second competing owner for the same state.
