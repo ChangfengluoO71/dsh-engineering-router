@@ -14,7 +14,7 @@ test('engineering reviewer is a fresh one-shot spawn with a read-only tool surfa
   assert.match(block, /toolName: engineering_review/)
   assert.match(block, /enableRunInBackground: false/)
   assert.match(block, /backgroundMode: one-shot/)
-  assert.match(block, /maxDepth: 0/)
+  assert.match(block, /maxDepth: 1/)
 
   const filterStart = block.indexOf('toolFilter:')
   const personaStart = block.indexOf('persona:')
