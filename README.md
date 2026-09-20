@@ -1,5 +1,7 @@
 # dsh-engineering-router
 
+> **Language:** English · [简体中文](README.zh-CN.md)
+
 A personal DeepSeek Harness engineering preset for `ChangfengluoO71`.
 
 It combines four layers without turning them into one giant prompt:
@@ -127,7 +129,19 @@ The global managed AGENTS block enforces the cross-project behavior we want:
 - end-of-task cleanup of only task-owned junk;
 - durable knowledge goes to ADR/spec/task/test/workspace/code knowledge, not only chat history.
 
-See `docs/DESIGN.md` and `docs/COMPATIBILITY.md`.
+See:
+- `docs/DESIGN.md`
+- `docs/COMPATIBILITY.md`
+- `docs/COMMUNITY_RESEARCH.md`
+- `docs/RUNTIME_ACCEPTANCE.md`
+
+Chinese versions:
+- `README.zh-CN.md`
+- `docs/DESIGN.zh-CN.md`
+- `docs/COMPATIBILITY.zh-CN.md`
+- `docs/COMMUNITY_RESEARCH.zh-CN.md`
+- `docs/RUNTIME_ACCEPTANCE.zh-CN.md`
+- `CHANGELOG.zh-CN.md`
 
 ## Upstream maintenance
 
