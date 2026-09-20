@@ -153,6 +153,7 @@ See:
 - `docs/COMPATIBILITY.md`
 - `docs/COMMUNITY_RESEARCH.md`
 - `docs/RUNTIME_ACCEPTANCE.md`
+- `docs/USAGE.md`
 
 Chinese versions:
 - `README.zh-CN.md`
