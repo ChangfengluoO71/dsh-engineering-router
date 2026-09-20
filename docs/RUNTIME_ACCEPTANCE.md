@@ -36,15 +36,50 @@ Remediation in v0.2.1:
 3. unknown persona config shapes fail loud;
 4. CI checks the packaged persona contract.
 
-## v0.2.1
+## v0.2.1 — 2026-09-19
 
-**Runtime status: PENDING REAL RETEST**
+**Result: REAL_DSH_RUNTIME_PASS**
 
-Static/package regression gates may pass, but runtime acceptance requires:
-- real preset mount/session creation;
-- Router phase progression;
-- real `engineering_review` spawn/tool isolation;
-- broken-chain negative control;
-- fixed-chain positive control.
+Environment:
+- DSH: `0.1.5-rc.2`
+- Package: `0.2.1`
+- GitHub `main`: `5c52b4720c71e9f53bbd7fa3c0695f38fb0ac6ad`
 
-Do not mark v0.2.1 runtime Accepted until those checks pass.
+Verified:
+- Materialized persona uses `config.prefix`; legacy `config.text` is absent.
+- Engineering Router preset mount and session creation succeeded.
+- Router phase progression succeeded.
+- `engineering_review` was unavailable before verification and available in the verification phase.
+- Reviewer runtime descriptor used `provider=spawn`, foreground one-shot, `maxDepth=1`.
+- Reviewer runtime tool surface was restricted to `phase_begin`, `read`, `glob`, `grep`.
+- Broken-chain negative control was correctly rejected by the Reviewer.
+- Fixed-chain positive control was correctly accepted by the Reviewer.
+- Router Standard remained usable and namespace/state isolation held.
+- No unrelated settings, Router Standard state, or AGENTS content was overwritten.
+
+Key Chain Integrity discrimination:
+
+```text
+BROKEN → FAIL
+FIXED  → PASS
+```
+
+Therefore the reviewer was not fooled by the focused unit test in the broken fixture; it followed the real persistence/observation chain.
+
+**REAL_DSH_RUNTIME_GATE: PASS**
+
+### Explicitly unverified
+
+The following were not misrepresented as verified:
+- package-level `0.2.0 → 0.2.1` in-place upgrade path, because the old v0.2.0 package was no longer present when this run began;
+- final whole-branch review runtime;
+- full `engineering-project-bootstrap` Trellis/Graphify bootstrap path;
+- Desktop long-lived Host GUI preset selection after restart.
+
+These are follow-up coverage items, not failures of the v0.2.1 runtime gate.
+
+## Cleanup / Git state
+
+The real-run agent made no source modifications and performed no commit, push, or merge.
+
+It removed task-owned disposable fixtures, drivers, and temporary Host artifacts while preserving evidence and existing user/DSH-managed state.
