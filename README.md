@@ -42,6 +42,25 @@ $DSH_HOME/
 
 It does **not** overwrite an unmanaged `engineering-router` directory. If a managed preset was edited locally, upgrades preserve those edits and log a warning unless the bundle config explicitly sets `force: true`.
 
+## Usage
+
+The detailed operational guide covers installation verification, new-session preset selection, Trellis/Graphify onboarding, the independent review gate, upgrade/removal behavior, advanced installer configuration, and troubleshooting.
+
+See [docs/USAGE.md](docs/USAGE.md).
+
+Quick daily path:
+
+```text
+New Engineering Router session
+  → inspect AGENTS / Trellis / Git / architecture
+  → Research → Design → Implement
+  → focused verification
+  → engineering_review
+  → resolve findings / UNVERIFIED
+  → scoped re-review
+  → project acceptance
+```
+
 ## Upgrade
 
 ```powershell
@@ -134,6 +153,7 @@ See:
 - `docs/COMPATIBILITY.md`
 - `docs/COMMUNITY_RESEARCH.md`
 - `docs/RUNTIME_ACCEPTANCE.md`
+- `docs/USAGE.md`
 
 Chinese versions:
 - `README.zh-CN.md`
