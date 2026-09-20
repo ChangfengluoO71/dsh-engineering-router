@@ -5,7 +5,8 @@
 - Fixed a real DSH mount blocker: `@deepseek-ai/dsh-persona` requires `config.prefix`; v0.2.0 shipped the upstream fallback's legacy `config.text`.
 - Added a fail-loud compatibility normalizer so future `sync-upstream.mjs` runs convert only the known legacy persona shape and stop on unknown upstream schema changes.
 - Added `check-preset-contract.mjs` plus regression tests for shipped `prefix`, legacy `text -> prefix` normalization, idempotence, and unknown-shape rejection.
-- Recorded the v0.2.0 real-run failure as a compatibility regression baseline. Full Engineering Router / reviewer runtime acceptance remains pending the v0.2.1 retest.
+- Recorded the v0.2.0 real-run failure as a compatibility regression baseline.
+- v0.2.1 passed real DSH Runtime Acceptance: preset mount, Router phase progression, independent Reviewer, Chain Integrity discrimination, and Router Standard coexistence were verified.
 
 ## 0.2.0 — 2026-09-19
 
