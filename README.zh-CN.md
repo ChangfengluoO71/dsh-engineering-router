@@ -42,6 +42,23 @@ $DSH_HOME/
 
 它**不会**覆盖未受管的 `engineering-router` 目录。如果受管预设被本地修改，升级时会保留这些修改并记录警告；只有 Bundle 配置明确设置 `force: true` 时才会强制覆盖。
 
+## 使用说明
+
+现在单独提供完整的[使用说明](docs/USAGE.zh-CN.md)，覆盖安装验证、新 Session 选择、Trellis / Graphify 接入、Independent Review Gate、升级/卸载、高级配置和常见问题。
+
+日常最短路径：
+
+```text
+新建 Engineering Router Session
+  → 检查 AGENTS / Trellis / Git / architecture
+  → Research → Design → Implement
+  → focused verification
+  → engineering_review
+  → 修复 findings / UNVERIFIED
+  → scoped re-review
+  → project acceptance
+```
+
 ## 升级
 
 ```powershell
