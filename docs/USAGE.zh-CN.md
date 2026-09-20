@@ -1,7 +1,5 @@
 # 使用说明
 
-本页是 dsh-engineering-router 0.2.1 的实际使用手册，重点说明安装以后怎么用，而不是重复设计说明。
-
 > 当前 Runtime Acceptance 基线：DSH 0.1.5-rc.2、Bundle 0.2.1。该基线已完成真实 DSH Runtime Acceptance，但 DSH 本身仍处于快速迭代阶段；未来版本应重新检查兼容性。
 
 ## 1. 这个 Bundle 安装以后会得到什么？
