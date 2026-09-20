@@ -159,6 +159,7 @@ Reviewer 的判断不是最终 Acceptance Authority。测试、契约、构建�
 - [兼容性与调研基线](docs/COMPATIBILITY.zh-CN.md)
 - [社区调研](docs/COMMUNITY_RESEARCH.zh-CN.md)
 - [运行时验收历史](docs/RUNTIME_ACCEPTANCE.zh-CN.md)
+- [详细使用说明](docs/USAGE.zh-CN.md)
 
 ## 上游维护
 
