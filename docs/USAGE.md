@@ -524,17 +524,17 @@ Once installed, the normal user flow is:
         ↓
 4. Implement → Verify → Review when risk requires it
         ↓
-4. focused tests / regression / build / real run
+5. focused tests / regression / build / real run
         ↓
-5. verification phase
+6. verification phase
         ↓
-6. engineering_review
+7. engineering_review
         ↓
-7. resolve Critical / Important / UNVERIFIED
+8. resolve Critical / Important / UNVERIFIED
         ↓
-8. scoped re-review
+9. scoped re-review
         ↓
-9. final whole-branch review for multi-task work
+10. final whole-branch review for multi-task work
         ↓
 10. project acceptance
         ↓
@@ -553,37 +553,4 @@ Three habits matter most:
 - [Compatibility baseline](COMPATIBILITY.md)
 - [Community research](COMMUNITY_RESEARCH.md)
 - [Runtime acceptance](RUNTIME_ACCEPTANCE.md)
-- [简体中文使用说明](USAGE.zh-CN.md## 6. Daily task instructions
-
-Use the shortest instruction that expresses the outcome:
-
-| Intent | Example |
-|---|---|
-| Implement | `Implement the new cover lookup behavior.` |
-| Fix | `Fix the cover lookup failure.` |
-| Investigate | `Investigate why cover lookup fails on Android release builds.` |
-| Research | `Research the current Android versionCode behavior. Do not modify code.` |
-| Plan | `Plan the smallest safe implementation for this change. Do not modify code.` |
-| Review | `Review the current changes for correctness and chain integrity.` |
-| Continue | `Continue from the current task state.` |
-
-You may add constraints when they matter:
-
-~~~text
-Implement <goal>. Preserve the existing public contract and unrelated dirty changes.
-~~~
-
-~~~text
-Research <question>. Do not modify the repository; use current repository and authoritative external evidence.
-~~~
-
-~~~text
-Implement <goal>. Verify the behavior before claiming completion.
-~~~
-
-Do not normally write prompts that enumerate `Research → Design → Implement → Verify → Review`. Those are Router policy, not user ceremony. Explicit phase instructions remain useful when you intentionally want to constrain the session, but they should be the exception.
-
-For unknown technical problems, the Router should automatically research the repository and authoritative external sources before choosing an implementation. For architecture, protocol, schema, persistence, or security changes, it should enter the project's design/ADR path when required.
-
-The final report must still distinguish `Implemented / Verified / Committed / Pushed / Accepted` and must stop when required evidence is missing.
-
+- [简体中文使用说明](USAGE.zh-CN.md
