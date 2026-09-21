@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { classifyIntent, intentGuidance } from '../agent-presets/engineering-router/router-core-v34.mjs'
+import { classifyIntent, intentGuidance } from '../agent-presets/engineering-router/intent-policy.mjs'
 
 test('classifyIntent recognizes concise daily intents', () => {
   assert.equal(classifyIntent('实现新的封面读取逻辑'), 'implement')

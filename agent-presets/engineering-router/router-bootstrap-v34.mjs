@@ -16,8 +16,11 @@
  */
 
 import {
-  bandFor, sessionMode, extractText, isComplexTask, sessionEvents, classifyIntent, intentGuidance, completionContract
+  bandFor, sessionMode, extractText, isComplexTask, sessionEvents
 } from './router-core-v34.mjs'
+// Local, project-owned intent policy (P1/P2 classification + P3-A completion
+// contract). Kept OUT of the vendored core so an upstream sync cannot drop it.
+import { classifyIntent, intentGuidance, completionContract } from './intent-policy.mjs'
 import { join, dirname } from 'node:path'
 import { homedir, tmpdir } from 'node:os'
 import { pathToFileURL } from 'node:url'

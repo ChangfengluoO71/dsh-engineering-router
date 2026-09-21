@@ -27,7 +27,7 @@ mkdirSync(join(home, 'engineering-router'), { recursive: true })
 writeFileSync(process.env.DSH_ROUTER_STAGE_FILE, JSON.stringify({ version: 2, sessions: {} }), 'utf8')
 process.on('exit', () => { try { rmSync(home, { recursive: true, force: true }) } catch { /* best effort */ } })
 
-const { classifyIntent, intentGuidance, completionContract } = await import('../agent-presets/engineering-router/router-core-v34.mjs')
+const { classifyIntent, intentGuidance, completionContract } = await import('../agent-presets/engineering-router/intent-policy.mjs')
 const boot = await import('../agent-presets/engineering-router/router-bootstrap-v34.mjs')
 
 const handlers = new Map()

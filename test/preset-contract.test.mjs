@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { assertPersonaConfig, normalizePersonaConfig } from '../scripts/compat-patches.mjs'
 
 const shipped = readFileSync(new URL('../agent-presets/engineering-router/agent.cordis.yml', import.meta.url), 'utf8')
-const syncScript = readFileSync(new URL('../scripts/sync-upstream.mjs', import.meta.url), 'utf8')
+const syncPatches = readFileSync(new URL('../scripts/sync-patches.mjs', import.meta.url), 'utf8')
 
 test('shipped Engineering Router uses dsh-persona config.prefix', () => {
   assert.equal(assertPersonaConfig(shipped), true)
@@ -59,6 +59,6 @@ test('unknown future persona config shape fails loud', () => {
 
 
 test('upstream sync applies the tested persona normalizer before shipping agent.cordis.yml', () => {
-  assert.match(syncScript, /import \{ normalizePersonaConfig \} from '\.\/compat-patches\.mjs'/)
-  assert.match(syncScript, /let out = normalizePersonaConfig\(c\)\.replace\(/)
+  assert.match(syncPatches, /import \{ normalizePersonaConfig \} from '\.\/compat-patches\.mjs'/)
+  assert.match(syncPatches, /let out = normalizePersonaConfig\(c\)\.replace\(/)
 })
