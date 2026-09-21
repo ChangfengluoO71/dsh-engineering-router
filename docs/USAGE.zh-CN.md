@@ -105,136 +105,64 @@ dsh plugin --profile web add github:ChangfengluoO71/dsh-engineering-router#5c52b
 
 Session header 会记录它实际使用的 preset；因此，如果你还需要恢复历史 Engineering Router Session，不要随意删除 $DSH_HOME/.agent-presets/engineering-router/。
 
-## 5. 第一次接入一个项目：推荐流程
+## 5. 第一次接入一个项目：不需要手工编排 reconnaissance
 
-进入项目后，不建议直接说“帮我改 XXX”。
-
-更推荐先让 Engineering Router 做一次项目 reconnaissance：
+普通任务不需要先发送一大段 onboarding prompt。直接告诉 Router 目标即可：
 
 ~~~text
-先不要修改代码。
-检查当前仓库的 AGENTS.md、Trellis 状态、Git status/worktree、
-相关架构文档、ADR、测试入口和现有项目知识。
-同时检查 trellis --help 和 graphify --help。
-告诉我当前项目的 Source of Truth、任务入口、验证入口，
-以及本次任务需要的最小充分上下文。
+实现 <目标>。
 ~~~
 
-这样做可以避免：
+Engineering Router 应自行先检查当前任务、仓库状态、架构、测试和项目知识，再决定是否需要调研、规划和审查。只有属于用户的选择，或无法安全发现的关键信息，才应该询问用户。
 
-- 重复初始化已有 Trellis；
-- 把 Graphify 当 Source of Truth；
-- 覆盖已有 dirty changes；
-- 在不知道测试入口的情况下直接修改代码；
-- 把历史聊天里的结论当成当前源码事实。
-
-### 如果项目已经有 Trellis
-
-不要再创建第二套任务系统。
-
-Engineering Router 会优先读取已有：
-
-- .trellis/
-- Task / AC
-- spec
-- ADR / architecture
-- evidence / workspace memory
-
-然后继续使用现有项目控制面。
-
-### 如果项目还没有 Trellis
-
-让 Agent 先检查实际 CLI：
-
-~~~powershell
-trellis --help
-~~~
-
-当前调研基线中，Trellis 支持 DSH 集成的形式为：
-
-~~~powershell
-trellis init --dsh -u <user>
-~~~
-
-但这是当前调研版本的命令形态，不是永远不变的 CLI 契约。如果你安装的是不同版本，先以 trellis --help 为准。
-
-### Graphify
-
-先检查：
-
-~~~powershell
-graphify --help
-~~~
-
-当前调研基线中，项目级 Agent Skills 集成为：
-
-~~~powershell
-graphify install --project --platform agents
-~~~
-
-Graphify 的正确定位是：
+如果是**全新或完全陌生的项目**，可以显式要求一次只读 reconnaissance：
 
 ~~~text
-Graphify = derived navigation / relationship layer
-Source code + contract + tests = Source of Truth
+先检查项目，不要修改任何内容。告诉我本次目标相关的 Source of Truth、任务/AC 入口、验证入口，以及最小充分上下文。
 ~~~
 
-因此：
+内部工作流仍然是：
 
-- 大项目、跨模块任务、调用链分析时使用 Graphify；
-- 小修改不需要为了形式每次重建图；
-- Graphify 查询到关系后，回到当前源码和测试确认；
-- 默认不要提交 graphify-out/，除非项目明确决定把派生图纳入版本控制。
+~~~text
+Intent → Understand → 必要时 Research → Locate → 必要时 Plan
+      → Implement → Verify → 按风险 Review → Handoff
+~~~
+
+用户通常只需要表达**意图和必要约束**，不需要手工编排这些阶段。
 
 ## 6. 日常任务应该怎么下指令？
 
-推荐把任务交给 Engineering Router 后，明确要求它遵守以下顺序：
+优先使用最短、最自然的任务表达：
+
+| 意图 | 示例 |
+|---|---|
+| 实现 | `实现新的封面读取逻辑。` |
+| 修复 | `修复封面读取失败。` |
+| 调查 | `调查 Android release 构建为什么拿不到封面。` |
+| 研究 | `研究当前 Android versionCode 的行为，先不要改代码。` |
+| 规划 | `规划这个改动最小且安全的实现方案，先不要改代码。` |
+| 审查 | `审查当前改动的正确性和链路完整性。` |
+| 继续 | `继续当前任务。` |
+
+需要时再补充真正重要的约束：
 
 ~~~text
-Understand
-  → Research
-  → Locate
-  → Design / Plan
-  → Implement
-  → Verify
-  → Review
-  → Cleanup
-  → Handoff
+实现 <目标>。保持现有公共接口，并保留与本任务无关的 dirty changes。
 ~~~
-
-### 例 1：普通功能任务
 
 ~~~text
-先读取当前 Trellis task/AC 和相关源码。
-如果现有实现或项目知识已经能定位问题，就不要让我重复提供。
-先完成必要调研，再给出最小改动方案。
-实现后运行与本次行为直接相关的 focused tests，
-然后检查 git diff / status，并报告证据。
+研究 <问题>。不要修改仓库；使用当前仓库和权威外部资料验证。
 ~~~
-
-### 例 2：遇到未知技术问题
 
 ~~~text
-先不要改代码。
-先检查仓库现有实现、官方文档/规范、上游实现和成熟 OSS 方案。
-比较兼容性、复杂度、维护成本和可逆性。
-只有调研结果明确后再进入实现。
+实现 <目标>。完成后验证行为再报告完成。
 ~~~
 
-### 例 3：你已经知道要改哪里
+不要把 `Research → Design → Implement → Verify → Review` 当成用户每次都要填写的 prompt 模板。这是 Router 的内部工程策略，而不是用户仪式。只有你确实想限制阶段时，才显式写出阶段约束。
 
-即使目标文件已经明确，也不要跳过验证：
+对于未知技术问题，Router 应自动先检查仓库和权威外部资料，再决定实现方式。对于架构、协议、Schema、持久化或安全边界变更，应在需要时进入项目的 design/ADR 路径。
 
-~~~text
-按当前任务 AC 修改指定位置。
-保持现有架构和接口不变，除非证据证明必须改变。
-完成后至少验证：
-1. focused tests
-2. 相关 regression
-3. git diff
-4. git status
-并区分 Implemented / Verified / Committed / Pushed / Accepted。
-~~~
+最终报告仍必须区分 `Implemented / Verified / Committed / Pushed / Accepted`；缺少必要证据时应 STOP。
 
 ## 7. Independent Review Gate 怎么用？
 
@@ -654,4 +582,37 @@ Graphify query/path/explain
 - [兼容性与调研基线](COMPATIBILITY.zh-CN.md)
 - [社区调研](COMMUNITY_RESEARCH.zh-CN.md)
 - [运行时验收历史](RUNTIME_ACCEPTANCE.zh-CN.md)
-- [English Usage Guide](USAGE.md)
+- [English Usage Guide](USAGE.md)## 6. 日常任务应该怎么下指令？
+
+优先使用最短、最自然的任务表达：
+
+| 意图 | 示例 |
+|---|---|
+| 实现 | `实现新的封面读取逻辑。` |
+| 修复 | `修复封面读取失败。` |
+| 调查 | `调查 Android release 构建为什么拿不到封面。` |
+| 研究 | `研究当前 Android versionCode 的行为，先不要改代码。` |
+| 规划 | `规划这个改动最小且安全的实现方案，先不要改代码。` |
+| 审查 | `审查当前改动的正确性和链路完整性。` |
+| 继续 | `继续当前任务。` |
+
+需要时再补充真正重要的约束：
+
+~~~text
+实现 <目标>。保持现有公共接口，并保留与本任务无关的 dirty changes。
+~~~
+
+~~~text
+研究 <问题>。不要修改仓库；使用当前仓库和权威外部资料验证。
+~~~
+
+~~~text
+实现 <目标>。完成后验证行为再报告完成。
+~~~
+
+不要把 `Research → Design → Implement → Verify → Review` 当成用户每次都要填写的 prompt 模板。这是 Router 的内部工程策略，而不是用户仪式。只有你确实想限制阶段时，才显式写出阶段约束。
+
+对于未知技术问题，Router 应自动先检查仓库和权威外部资料，再决定实现方式。对于架构、协议、Schema、持久化或安全边界变更，应在需要时自动进入项目的 design/ADR 路径。
+
+最终报告仍必须区分 `Implemented / Verified / Committed / Pushed / Accepted`；缺少必要证据时应 STOP。
+

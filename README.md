@@ -46,19 +46,21 @@ It does **not** overwrite an unmanaged `engineering-router` directory. If a mana
 
 The detailed operational guide covers installation verification, new-session preset selection, Trellis/Graphify onboarding, the independent review gate, upgrade/removal behavior, advanced installer configuration, and troubleshooting.
 
-See [docs/USAGE.md](docs/USAGE.md).
+See [docs/QUICKSTART.md](docs/QUICKSTART.md) for the shortest path, then [docs/USAGE.md](docs/USAGE.md) for the complete operational guide.
 
-Quick daily path:
+Shortest daily path:
 
 ```text
-New Engineering Router session
-  → inspect AGENTS / Trellis / Git / architecture
-  → Research → Design → Implement
-  → focused verification
-  → engineering_review
-  → resolve findings / UNVERIFIED
-  → scoped re-review
-  → project acceptance
+Tell Engineering Router the outcome you want:
+  implement <goal>
+  fix <problem>
+  investigate <question>
+  research <topic>
+  plan <goal>
+  review <scope>
+
+The Router decides when to inspect, research, plan, verify, and review.
+You do not need to describe the internal workflow unless you want to constrain it.
 ```
 
 ## Upgrade

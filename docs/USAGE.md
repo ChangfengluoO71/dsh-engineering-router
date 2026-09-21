@@ -104,120 +104,62 @@ The session records the preset it was composed from. Do not casually delete the 
 
 ## 5. Onboard a project
 
-Do not start by immediately editing a file.
-
-Recommended first prompt:
+The normal user does **not** need a separate reconnaissance prompt. Start with the outcome you want:
 
 ~~~text
-Do not modify the repository yet.
-Inspect AGENTS.md, existing Trellis state, Git status/worktree,
-relevant architecture/ADR documents, test entry points, and project knowledge.
-Also check trellis --help and graphify --help.
-Report the current Sources of Truth, task entry points,
-verification entry points, and the minimum sufficient context for this task.
+Implement <goal>.
 ~~~
 
-This avoids:
+Engineering Router should discover the current task, repository state, architecture, tests, and project knowledge before changing code. It should ask only when a decision belongs to the user or cannot be discovered safely.
 
-- creating a second task system;
-- treating Graphify as canonical truth;
-- overwriting unrelated dirty changes;
-- changing code before locating the real verification entry point;
-- asking the user to repeat information that can be safely discovered.
-
-### Existing Trellis
-
-If .trellis/ already exists, use the existing project workflow rather than creating another state system.
-
-### New Trellis setup
-
-Check the actual CLI first:
-
-~~~powershell
-trellis --help
-~~~
-
-The current research baseline supports:
-
-~~~powershell
-trellis init --dsh -u <user>
-~~~
-
-Treat that as a versioned command shape, not a permanent contract. Use the installed CLI help output if it differs.
-
-### Graphify
-
-Check:
-
-~~~powershell
-graphify --help
-~~~
-
-The current research baseline supports:
-
-~~~powershell
-graphify install --project --platform agents
-~~~
-
-Use Graphify as a derived navigation and relationship layer:
+For a **new or unfamiliar project**, you can explicitly request a read-only reconnaissance pass:
 
 ~~~text
-Graphify = navigation
-Source + contracts + tests = Source of Truth
+Inspect the project first. Do not modify anything. Report the relevant sources of truth, task/AC entry points, verification entry points, and minimum sufficient context for this goal.
 ~~~
 
-Use it for large repositories, cross-module work, and relationship tracing. Do not rebuild a healthy graph for every small task. By default, do not commit graphify-out/ unless the project explicitly decides to version derived graph artifacts.
-
-## 6. Recommended task workflow
-
-Use this order:
+The internal workflow remains:
 
 ~~~text
-Understand
-  → Research
-  → Locate
-  → Design / Plan
-  → Implement
-  → Verify
-  → Review
-  → Cleanup
-  → Handoff
+Intent → Understand → Research when needed → Locate → Plan when needed
+      → Implement → Verify → Review when risk requires it → Handoff
 ~~~
 
-### Normal behavior change
+The user should normally express the **intent**, not manually orchestrate these phases. This avoids creating a second task system, treating Graphify as canonical truth, changing code before locating verification, or asking for facts that the repository can reveal.
+
+## 6. Daily task instructions
+
+Use the shortest instruction that expresses the outcome:
+
+| Intent | Example |
+|---|---|
+| Implement | `Implement the new cover lookup behavior.` |
+| Fix | `Fix the cover lookup failure.` |
+| Investigate | `Investigate why cover lookup fails on Android release builds.` |
+| Research | `Research the current Android versionCode behavior. Do not modify code.` |
+| Plan | `Plan the smallest safe implementation for this change. Do not modify code.` |
+| Review | `Review the current changes for correctness and chain integrity.` |
+| Continue | `Continue from the current task state.` |
+
+You may add constraints when they matter:
 
 ~~~text
-Read the current Trellis task/AC and relevant source first.
-If the repository already contains the information needed to locate the problem,
-do not ask the user to repeat it.
-Research only the uncertainties that can change the implementation.
-Make the smallest complete change.
-Run focused tests and relevant regression checks.
-Inspect git diff/status and report the evidence.
+Implement <goal>. Preserve the existing public contract and unrelated dirty changes.
 ~~~
-
-### Unknown technical problem
 
 ~~~text
-Do not modify code yet.
-Research the existing implementation, official documentation/specification,
-upstream behavior, and mature OSS alternatives.
-Compare compatibility, complexity, maintenance cost, security/performance impact,
-and reversibility.
-Only then propose the implementation.
+Research <question>. Do not modify the repository; use current repository and authoritative external evidence.
 ~~~
-
-### Known target file
-
-Even when the edit location is obvious, keep verification explicit:
 
 ~~~text
-Implement the current AC with the smallest complete change.
-Do not change frozen architecture or public contracts unless evidence requires it.
-After implementation, run focused tests and relevant regression checks,
-then inspect git diff/status and distinguish:
-Implemented / Verified / Committed / Pushed / Accepted.
+Implement <goal>. Verify the behavior before claiming completion.
 ~~~
+
+Do not normally write prompts that enumerate `Research → Design → Implement → Verify → Review`. Those are Router policy, not user ceremony. Explicit phase instructions remain useful when you intentionally want to constrain the session, but they should be the exception.
+
+For unknown technical problems, the Router should automatically research the repository and authoritative external sources before choosing an implementation. For architecture, protocol, schema, persistence, or security changes, it should enter the project's design/ADR path when required.
+
+The final report must still distinguish `Implemented / Verified / Committed / Pushed / Accepted` and must stop when required evidence is missing.
 
 ## 7. Independent Review Gate
 
@@ -609,4 +551,37 @@ Three habits matter most:
 - [Compatibility baseline](COMPATIBILITY.md)
 - [Community research](COMMUNITY_RESEARCH.md)
 - [Runtime acceptance](RUNTIME_ACCEPTANCE.md)
-- [简体中文使用说明](USAGE.zh-CN.md)
+- [简体中文使用说明](USAGE.zh-CN.md## 6. Daily task instructions
+
+Use the shortest instruction that expresses the outcome:
+
+| Intent | Example |
+|---|---|
+| Implement | `Implement the new cover lookup behavior.` |
+| Fix | `Fix the cover lookup failure.` |
+| Investigate | `Investigate why cover lookup fails on Android release builds.` |
+| Research | `Research the current Android versionCode behavior. Do not modify code.` |
+| Plan | `Plan the smallest safe implementation for this change. Do not modify code.` |
+| Review | `Review the current changes for correctness and chain integrity.` |
+| Continue | `Continue from the current task state.` |
+
+You may add constraints when they matter:
+
+~~~text
+Implement <goal>. Preserve the existing public contract and unrelated dirty changes.
+~~~
+
+~~~text
+Research <question>. Do not modify the repository; use current repository and authoritative external evidence.
+~~~
+
+~~~text
+Implement <goal>. Verify the behavior before claiming completion.
+~~~
+
+Do not normally write prompts that enumerate `Research → Design → Implement → Verify → Review`. Those are Router policy, not user ceremony. Explicit phase instructions remain useful when you intentionally want to constrain the session, but they should be the exception.
+
+For unknown technical problems, the Router should automatically research the repository and authoritative external sources before choosing an implementation. For architecture, protocol, schema, persistence, or security changes, it should enter the project's design/ADR path when required.
+
+The final report must still distinguish `Implemented / Verified / Committed / Pushed / Accepted` and must stop when required evidence is missing.
+

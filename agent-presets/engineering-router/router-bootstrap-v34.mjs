@@ -16,7 +16,7 @@
  */
 
 import {
-  bandFor, sessionMode, extractText, isComplexTask, sessionEvents
+  bandFor, sessionMode, extractText, isComplexTask, sessionEvents, classifyIntent, intentGuidance
 } from './router-core-v34.mjs'
 import { join, dirname } from 'node:path'
 import { homedir, tmpdir } from 'node:os'
@@ -663,6 +663,8 @@ export function apply(ctx, config) {
       try { installMetaShim(agent, { installStage: true, stage }); shimmedSessions.add(session.id) } catch { /* ignore */ }
     }
     sections.push({ name: 'router-stage', order: 1, text: stageText(stage, muteAwareList(runtimeCallable(toolsSvc, agent), memoryMuted(session)), memoryMuted(session), firstUserTask(session)) })
+    const taskIntent = classifyIntent(firstUserTask(session))
+    sections.push({ name: 'router-intent', order: 1.5, text: intentGuidance(taskIntent) })
     // 声明与主动性常驻（人设常驻：不经压缩丢失；bootstrap 消息可能被 compaction 剪掉）
     sections.push({ name: 'router-decl', order: 2, text: PROGRESSIVE_DECL })
     sections.push({ name: 'router-proactivity', order: 3, text: PRESSURE_GUIDE.replace(/^\n+/, '') })

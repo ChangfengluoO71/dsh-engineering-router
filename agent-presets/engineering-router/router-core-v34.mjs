@@ -145,6 +145,44 @@ export function classifyTask(text) {
   return 'weak'
 }
 
+/**
+ * User-intent classification is a lightweight presentation hint, not a workflow
+ * gate. The Router still owns phase transitions and decides when research,
+ * planning, verification, or review are required.
+ */
+const INTENT_PATTERNS = Object.freeze([
+  ['review', /(审查|审核|review|code review|检查当前改动)/i],
+  ['research', /(研究|调研|查资料|查文档|research|survey|look into)/i],
+  ['investigate', /(调查|排查|查一下为什么|分析原因|investigate|diagnose|why does)/i],
+  ['plan', /(规划|制定方案|设计方案|先做方案|plan|planning)/i],
+  ['fix', /(修复|修一下|修正|解决.*问题|fix|debug|repair|broken|bug)/i],
+  ['implement', /(实现|开发|创建|新增|添加|构建|写一个|落地|implement|develop|create|build|add)/i],
+  ['continue', /(继续|接着做|continue|resume|pick up)/i],
+])
+
+export function classifyIntent(text) {
+  const value = typeof text === 'string' ? text.trim() : ''
+  if (!value) return 'unknown'
+  for (const [intent, pattern] of INTENT_PATTERNS) {
+    if (pattern.test(value)) return intent
+  }
+  return 'unknown'
+}
+
+export function intentGuidance(intent) {
+  const guidance = {
+    implement: 'User intent: implement. Determine the necessary inspection, research, planning, implementation, and verification yourself; do not require the user to spell out the workflow.',
+    fix: 'User intent: fix. Diagnose the current behavior first, then make the smallest complete fix and verify it.',
+    investigate: 'User intent: investigate. Treat the task as diagnostic unless the user explicitly asks to modify the repository.',
+    research: 'User intent: research. Establish current repository and authoritative external evidence before proposing or changing implementation.',
+    plan: 'User intent: plan. Produce a decision-complete plan without modifying the repository unless the user explicitly asks to implement it.',
+    review: 'User intent: review. Inspect the requested scope independently and report evidence-backed findings; do not repair it unless asked.',
+    continue: 'User intent: continue. Resume from the current task state; do not repeat completed work.',
+    unknown: 'User intent: general. Infer the desired outcome from the user request, then choose the minimum necessary workflow.',
+  }
+  return guidance[intent] || guidance.unknown
+}
+
 /** Per-session mode derived from durable events (resume-safe). */
 export function sessionMode(session) {
   const events = session.events || (typeof session.snapshotEvents === 'function' ? session.snapshotEvents() : [])
