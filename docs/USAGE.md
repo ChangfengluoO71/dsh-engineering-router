@@ -513,14 +513,16 @@ Do not trust a stale graph over current code, and do not rebuild the graph for c
 
 ## 13. Recommended shortest daily path
 
-Once installed, the normal loop is:
+Once installed, the normal user flow is:
 
 ~~~text
 1. New Engineering Router session
         ↓
-2. Inspect AGENTS / Trellis / Git / architecture
+2. State the outcome you want
         ↓
-3. Research → Design → Implement
+3. Router inspects, researches, and plans when needed
+        ↓
+4. Implement → Verify → Review when risk requires it
         ↓
 4. focused tests / regression / build / real run
         ↓
