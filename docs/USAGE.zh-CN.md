@@ -555,17 +555,17 @@ Graphify query/path/explain
         ↓
 ④ Implement → Verify → 按风险 Review
         ↓
-④ focused tests / regression / build / real run
+⑤ focused tests / regression / build / real run
         ↓
-⑤ verification phase
+⑥ verification phase
         ↓
-⑥ engineering_review
+⑦ engineering_review
         ↓
-⑦ 修复 Critical / Important / UNVERIFIED
+⑧ 修复 Critical / Important / UNVERIFIED
         ↓
-⑧ scoped re-review
+⑨ scoped re-review
         ↓
-⑨ final whole-branch review（多任务时）
+⑩ final whole-branch review（多任务时）
         ↓
 ⑩ project acceptance
         ↓
@@ -584,37 +584,4 @@ Graphify query/path/explain
 - [兼容性与调研基线](COMPATIBILITY.zh-CN.md)
 - [社区调研](COMMUNITY_RESEARCH.zh-CN.md)
 - [运行时验收历史](RUNTIME_ACCEPTANCE.zh-CN.md)
-- [English Usage Guide](USAGE.md)## 6. 日常任务应该怎么下指令？
-
-优先使用最短、最自然的任务表达：
-
-| 意图 | 示例 |
-|---|---|
-| 实现 | `实现新的封面读取逻辑。` |
-| 修复 | `修复封面读取失败。` |
-| 调查 | `调查 Android release 构建为什么拿不到封面。` |
-| 研究 | `研究当前 Android versionCode 的行为，先不要改代码。` |
-| 规划 | `规划这个改动最小且安全的实现方案，先不要改代码。` |
-| 审查 | `审查当前改动的正确性和链路完整性。` |
-| 继续 | `继续当前任务。` |
-
-需要时再补充真正重要的约束：
-
-~~~text
-实现 <目标>。保持现有公共接口，并保留与本任务无关的 dirty changes。
-~~~
-
-~~~text
-研究 <问题>。不要修改仓库；使用当前仓库和权威外部资料验证。
-~~~
-
-~~~text
-实现 <目标>。完成后验证行为再报告完成。
-~~~
-
-不要把 `Research → Design → Implement → Verify → Review` 当成用户每次都要填写的 prompt 模板。这是 Router 的内部工程策略，而不是用户仪式。只有你确实想限制阶段时，才显式写出阶段约束。
-
-对于未知技术问题，Router 应自动先检查仓库和权威外部资料，再决定实现方式。对于架构、协议、Schema、持久化或安全边界变更，应在需要时自动进入项目的 design/ADR 路径。
-
-最终报告仍必须区分 `Implemented / Verified / Committed / Pushed / Accepted`；缺少必要证据时应 STOP。
-
+- [English Usage Guide](USAGE.md)
