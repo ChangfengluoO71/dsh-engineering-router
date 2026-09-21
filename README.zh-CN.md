@@ -140,7 +140,7 @@ Reviewer 的判断不是最终 Acceptance Authority。测试、契约、构建�
 全局受管 AGENTS 规则块执行以下跨项目工程行为：
 
 - 修改前先理解；
-- Research → Design/Plan → Implement → Verify；
+- 在不确定性会影响决策时进行 Research；
 - **Adopt → Adapt → Build**；
 - Search before Ask；
 - Minimum Sufficient Context；

@@ -135,7 +135,7 @@ A deterministic helper creates a compact review package under the repository's G
 The global managed AGENTS block enforces the cross-project behavior we want:
 
 - understand before editing;
-- Research → Design/Plan → Implement → Verify;
+- Research when uncertainty matters;
 - **Adopt → Adapt → Build**;
 - Search before Ask;
 - Minimum Sufficient Context;

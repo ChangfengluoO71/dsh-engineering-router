@@ -9,7 +9,7 @@ Engineering Router 不是一个单独的聊天工具，而是一套 DSH 工程�
 | 层 | 作用 | 你什么时候会感知到 |
 |---|---|---|
 | Engineering Router preset | 路由、阶段化工具暴露、plan/delivery 行为 | 每个新 Engineering Router Session |
-| 全局 AGENTS 规则 | Research → Design → Implement → Verify、Git 安全、Evidence Before Claims 等 | 所有适用的 DSH 工程任务 |
+| 全局 AGENTS 规则 | 在不确定性会影响决策时进行 Research、最小完整改动、验证、Git 安全、Evidence Before Claims 等 | 所有适用的 DSH 工程任务 |
 | engineering-project-bootstrap Skill | Trellis / Graphify 项目初始化与接入 | 新项目、老项目 onboarding、需要刷新工程知识时 |
 | engineering-review-gate Skill | 独立 fresh-context Reviewer + Chain Integrity | 非平凡变更、跨边界变更、合并门禁 |
 
@@ -160,7 +160,7 @@ Intent → Understand → 必要时 Research → Locate → 必要时 Plan
 
 不要把 `Research → Design → Implement → Verify → Review` 当成用户每次都要填写的 prompt 模板。这是 Router 的内部工程策略，而不是用户仪式。只有你确实想限制阶段时，才显式写出阶段约束。
 
-对于未知技术问题，Router 应自动先检查仓库和权威外部资料，再决定实现方式。对于架构、协议、Schema、持久化或安全边界变更，应在需要时进入项目的 design/ADR 路径。
+对于未知技术问题，Router 应自动先检查仓库和权威外部资料，再决定实现方式。对于架构、协议、Schema、持久化或安全边界变更，应在需要时自动进入项目的 design/ADR 路径。
 
 最终报告仍必须区分 `Implemented / Verified / Committed / Pushed / Accepted`；缺少必要证据时应 STOP。
 
@@ -549,25 +549,23 @@ Graphify query/path/explain
 ~~~text
 ① 新建 Engineering Router Session
         ↓
-② 让 Agent 先检查 AGENTS / Trellis / Git / architecture
+② 直接说明你想要的结果
         ↓
-③ Research → Design → Implement
+③ Router 在需要时自行检查、调研与规划
         ↓
-④ focused tests / regression / build / real run
+④ 风险需要时进入 Implement → Verify → Review
         ↓
-⑤ verification phase
+⑤ focused tests / regression / build / real run
         ↓
-⑥ engineering_review
+⑥ verification phase
         ↓
-⑦ 修复 Critical / Important / UNVERIFIED
+⑦ engineering_review
         ↓
-⑧ scoped re-review
+⑧ 处理 Critical / Important / UNVERIFIED
         ↓
-⑨ final whole-branch review（多任务时）
+⑨ scoped re-review
         ↓
-⑩ project acceptance
-        ↓
-⑪ Git commit / push
+⑩ final whole-branch review（多任务时）
 ~~~
 
 最重要的使用习惯只有三条：
@@ -582,37 +580,4 @@ Graphify query/path/explain
 - [兼容性与调研基线](COMPATIBILITY.zh-CN.md)
 - [社区调研](COMMUNITY_RESEARCH.zh-CN.md)
 - [运行时验收历史](RUNTIME_ACCEPTANCE.zh-CN.md)
-- [English Usage Guide](USAGE.md)## 6. 日常任务应该怎么下指令？
-
-优先使用最短、最自然的任务表达：
-
-| 意图 | 示例 |
-|---|---|
-| 实现 | `实现新的封面读取逻辑。` |
-| 修复 | `修复封面读取失败。` |
-| 调查 | `调查 Android release 构建为什么拿不到封面。` |
-| 研究 | `研究当前 Android versionCode 的行为，先不要改代码。` |
-| 规划 | `规划这个改动最小且安全的实现方案，先不要改代码。` |
-| 审查 | `审查当前改动的正确性和链路完整性。` |
-| 继续 | `继续当前任务。` |
-
-需要时再补充真正重要的约束：
-
-~~~text
-实现 <目标>。保持现有公共接口，并保留与本任务无关的 dirty changes。
-~~~
-
-~~~text
-研究 <问题>。不要修改仓库；使用当前仓库和权威外部资料验证。
-~~~
-
-~~~text
-实现 <目标>。完成后验证行为再报告完成。
-~~~
-
-不要把 `Research → Design → Implement → Verify → Review` 当成用户每次都要填写的 prompt 模板。这是 Router 的内部工程策略，而不是用户仪式。只有你确实想限制阶段时，才显式写出阶段约束。
-
-对于未知技术问题，Router 应自动先检查仓库和权威外部资料，再决定实现方式。对于架构、协议、Schema、持久化或安全边界变更，应在需要时自动进入项目的 design/ADR 路径。
-
-最终报告仍必须区分 `Implemented / Verified / Committed / Pushed / Accepted`；缺少必要证据时应 STOP。
-
+- [English Usage Guide](USAGE.md)
