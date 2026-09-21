@@ -9,7 +9,7 @@ Engineering Router 不是一个单独的聊天工具，而是一套 DSH 工程�
 | 层 | 作用 | 你什么时候会感知到 |
 |---|---|---|
 | Engineering Router preset | 路由、阶段化工具暴露、plan/delivery 行为 | 每个新 Engineering Router Session |
-| 全局 AGENTS 规则 | Research → Design → Implement → Verify、Git 安全、Evidence Before Claims 等 | 所有适用的 DSH 工程任务 |
+| 全局 AGENTS 规则 | 在不确定性影响决策时进行 Research、最小完整变更、验证、Git 安全、Evidence Before Claims 等 | 所有适用的 DSH 工程任务 |
 | engineering-project-bootstrap Skill | Trellis / Graphify 项目初始化与接入 | 新项目、老项目 onboarding、需要刷新工程知识时 |
 | engineering-review-gate Skill | 独立 fresh-context Reviewer + Chain Integrity | 非平凡变更、跨边界变更、合并门禁 |
 
