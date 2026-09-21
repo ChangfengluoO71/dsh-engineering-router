@@ -44,9 +44,27 @@ const files = [
   'router-core-v34.mjs',
 ]
 
+/**
+ * Mutation barrier: fetch and render EVERYTHING before the first write.
+ *
+ * Phase 1 (fetch) and phase 2 (patch) only build in-memory maps, so a network
+ * failure or a patch/anchor failure aborts with ZERO worktree mutation. Without
+ * this, a mid-loop failure left the earlier files already rewritten and the
+ * rest untouched — a partial sync (verified by failure injection, P3-B).
+ *
+ * Phase 3 is the first and only place that touches the worktree. It is not
+ * atomic per file: a failure while writing target N still leaves targets
+ * 1..N-1 written. That residual write-phase window is deliberately out of scope.
+ */
+const fetched = new Map()
 for (const file of files) {
   const url = 'https://raw.githubusercontent.com/' + repo + '/' + ref + '/preset/router-standard/' + file
-  let c = await text(url)
+  fetched.set(file, await text(url))
+}
+
+const rendered = new Map()
+for (const file of files) {
+  let c = fetched.get(file)
   if (file.startsWith('router-bootstrap')) {
     c = '// Modified by dsh-engineering-router: isolate persistent/global router state from router-standard.\n' + patchBootstrap(c, file)
   } else if (file === 'agent.cordis.yml') {
@@ -57,9 +75,13 @@ for (const file of files) {
       + 'description: "Personal engineering preset: upstream Router Standard runtime + global research-first/context/evidence rules + Trellis/Graphify project workflow integration."\n'
       + 'order: 2\n'
   }
+  rendered.set(file, c)
+}
+
+for (const file of files) {
   const dest = join(ROOT, 'agent-presets', 'engineering-router', file)
   mkdirSync(dirname(dest), { recursive: true })
-  writeFileSync(dest, c, 'utf8')
+  writeFileSync(dest, rendered.get(file), 'utf8')
 }
 
 lock.dshRoutingSuite.ref = ref

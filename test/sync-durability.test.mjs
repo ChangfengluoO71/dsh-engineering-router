@@ -1,8 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, copyFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { spawnSync } from 'node:child_process'
 
 /**
  * Sync durability.
@@ -159,5 +160,200 @@ test('the real bootstrap loads and still emits the intent section (no link-time 
     assert.match(intent.text, /Done means:/, 'the P3-A contract must still be attached')
   } finally {
     rmSync(home, { recursive: true, force: true })
+  }
+})
+
+/* ── 7. Mutation barrier: fetch-all -> patch-all -> write-all ─────────────── */
+
+/**
+ * `sync-upstream.mjs` used to fetch, patch and write one file per iteration, so
+ * a patch failure at target N left targets 1..N-1 already rewritten on disk.
+ * P3-B failure injection confirmed that: a mid-loop anchor failure produced a
+ * partial sync (worktree straddling two revisions, the mounted bootstrap losing
+ * the local overlay, npm test 30/38). The sync now renders everything in memory
+ * before the first write, so fetch and patch failures mutate nothing.
+ *
+ * These tests run the REAL `scripts/sync-upstream.mjs` (copied byte-for-byte
+ * into a temp tree) with only the network transport replaced by a local shim.
+ */
+const SYNC_TARGETS = [
+  'agent.cordis.yml',
+  'preset.yml',
+  'gitbash-executor.mjs',
+  'router-bootstrap.mjs',
+  'router-bootstrap-v34.mjs',
+  'router-bootstrap-v34.selftest.mjs',
+  'router-core.mjs',
+  'router-core-v34.mjs',
+]
+
+/** Files the sync patches; the rest are copied verbatim from upstream. */
+const PATCHED_TARGETS = ['agent.cordis.yml', 'preset.yml', 'router-bootstrap.mjs', 'router-bootstrap-v34.mjs']
+/** Gets the standard header comment, but no structural patch (it is a checker). */
+const HEADER_ONLY_TARGETS = ['router-bootstrap-v34.selftest.mjs']
+/** Copied byte-for-byte from upstream with no patch and no header. */
+const VERBATIM_TARGETS = ['gitbash-executor.mjs', 'router-core.mjs', 'router-core-v34.mjs']
+
+/** Minimal upstream-shaped agent.cordis.yml: persona row + fork anchor. */
+const UP_AGENT_CORDIS = [
+  '# The `router-standard` agent preset:',
+  '- id: persona',
+  "  name: '@deepseek-ai/dsh-persona'",
+  '  config:',
+  '    text: >-',
+  '      pre-assembly fallback',
+  '    - id: tool-subagent-fork',
+  "      name: '@deepseek-ai/dsh-tool-subagent'",
+  '      config:',
+  '        provider: fork',
+  '        toolName: subagent_fork',
+  '        backgroundMode: continuable',
+  '',
+].join('\n')
+
+const UPSTREAM_BODIES = {
+  'agent.cordis.yml': UP_AGENT_CORDIS,
+  'preset.yml': 'name: Router Standard\ndescription: upstream\n',
+  'gitbash-executor.mjs': 'export const name = "gitbash-executor"\n',
+  'router-bootstrap.mjs': FRESH_UPSTREAM_BOOTSTRAP,
+  'router-bootstrap-v34.mjs': FRESH_UPSTREAM_BOOTSTRAP,
+  'router-bootstrap-v34.selftest.mjs': 'import { readFileSync } from "node:fs"\n',
+  'router-core.mjs': 'export function bandFor() { return "core" }\n',
+  'router-core-v34.mjs': 'export function bandFor() { return "core-v34" }\n',
+}
+
+/** Serves the upstream bodies from disk; optionally doctors one file's shape. */
+const SYNC_HARNESS = `
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const ROOT = fileURLToPath(new URL('.', import.meta.url))
+const doctor = process.argv[2] || ''
+const ANCHOR = "{ name: '验证', tools: ['pwsh', 'bash', 'read_image', 'job_list', 'job_output', 'job_kill'] },"
+const DOCTORED = "{ name: '验证', tools: ['pwsh', 'read_image', 'job_list', 'job_output', 'job_kill'] },"
+
+globalThis.fetch = async (url) => {
+  const file = String(url).split('/').pop()
+  let body = readFileSync(join(ROOT, 'bodies', file), 'utf8')
+  if (doctor && file === doctor) body = body.replace(ANCHOR, DOCTORED)
+  return new Response(body, { status: 200, headers: { 'content-type': 'text/plain; charset=utf-8' } })
+}
+
+// sync-upstream.mjs reads process.argv[2] as the upstream ref; pin it to the
+// already-resolved ref so no GitHub API call is attempted.
+const lock = JSON.parse(readFileSync(join(ROOT, 'upstream.lock.json'), 'utf8'))
+process.argv = [process.argv[0], 'sync-upstream.mjs', lock.dshRoutingSuite.ref]
+await import(new URL('./scripts/sync-upstream.mjs', import.meta.url).href)
+`
+
+/** Build an isolated tree with the real sync script and run it once. */
+function runIsolatedSync({ doctor = '' } = {}) {
+  const root = mkdtempSync(join(tmpdir(), 'dsh-sync-barrier-'))
+  mkdirSync(join(root, 'scripts'), { recursive: true })
+  mkdirSync(join(root, 'bodies'), { recursive: true })
+  mkdirSync(join(root, 'agent-presets', 'engineering-router'), { recursive: true })
+  for (const f of ['sync-upstream.mjs', 'sync-patches.mjs', 'compat-patches.mjs']) {
+    copyFileSync(new URL(`../scripts/${f}`, import.meta.url), join(root, 'scripts', f))
+  }
+  copyFileSync(new URL('../upstream.lock.json', import.meta.url), join(root, 'upstream.lock.json'))
+  for (const f of SYNC_TARGETS) {
+    writeFileSync(join(root, 'bodies', f), UPSTREAM_BODIES[f], 'utf8')
+    writeFileSync(join(root, 'agent-presets', 'engineering-router', f), UPSTREAM_BODIES[f], 'utf8')
+  }
+  writeFileSync(join(root, 'harness.mjs'), SYNC_HARNESS, 'utf8')
+
+  const target = (f) => join(root, 'agent-presets', 'engineering-router', f)
+  const before = new Map(SYNC_TARGETS.map((f) => [f, readFileSync(target(f))]))
+  const lockBefore = readFileSync(join(root, 'upstream.lock.json'))
+  const run = spawnSync(process.execPath, [join(root, 'harness.mjs'), doctor], { encoding: 'utf8' })
+  const after = new Map(SYNC_TARGETS.map((f) => [f, readFileSync(target(f))]))
+  const lockAfter = readFileSync(join(root, 'upstream.lock.json'))
+  return { root, run, before, after, lockBefore, lockAfter }
+}
+
+test('a mid-sync patch failure mutates nothing (mutation barrier)', () => {
+  // Injection point is target #5 — exactly where the P3-B research run observed
+  // agent.cordis.yml, preset.yml, gitbash-executor.mjs and router-bootstrap.mjs
+  // already rewritten, i.e. a partial sync.
+  const { root, run, before, after, lockBefore, lockAfter } = runIsolatedSync({ doctor: MOUNTED_BOOTSTRAP })
+  try {
+    assert.notEqual(run.status, 0, 'a sync with a failing patch must exit non-zero')
+    assert.match(
+      `${run.stdout}${run.stderr}`,
+      /upstream shape changed; cannot apply local patch: verification stage reviewer tool/,
+      'the injected anchor failure must be the actual cause (guards against a vacuous pass)',
+    )
+    for (const f of SYNC_TARGETS) {
+      assert.ok(before.get(f).equals(after.get(f)), `${f} must be byte-identical after a failed sync`)
+    }
+    assert.ok(lockBefore.equals(lockAfter), 'upstream.lock.json must be byte-identical after a failed sync')
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('a fetch failure mutates nothing either (mutation barrier)', () => {
+  const root = mkdtempSync(join(tmpdir(), 'dsh-sync-fetchfail-'))
+  mkdirSync(join(root, 'scripts'), { recursive: true })
+  mkdirSync(join(root, 'bodies'), { recursive: true })
+  mkdirSync(join(root, 'agent-presets', 'engineering-router'), { recursive: true })
+  for (const f of ['sync-upstream.mjs', 'sync-patches.mjs', 'compat-patches.mjs']) {
+    copyFileSync(new URL(`../scripts/${f}`, import.meta.url), join(root, 'scripts', f))
+  }
+  copyFileSync(new URL('../upstream.lock.json', import.meta.url), join(root, 'upstream.lock.json'))
+  for (const f of SYNC_TARGETS) {
+    writeFileSync(join(root, 'bodies', f), UPSTREAM_BODIES[f], 'utf8')
+    writeFileSync(join(root, 'agent-presets', 'engineering-router', f), UPSTREAM_BODIES[f], 'utf8')
+  }
+  // Serve every body except the LAST target, so the failure happens after seven
+  // successful fetches — the worst case for a non-barriered implementation.
+  const harness = SYNC_HARNESS.replace(
+    "  let body = readFileSync(join(ROOT, 'bodies', file), 'utf8')",
+    `  if (file === '${SYNC_TARGETS.at(-1)}') throw new Error('injected upstream fetch failure')\n  let body = readFileSync(join(ROOT, 'bodies', file), 'utf8')`,
+  )
+  writeFileSync(join(root, 'harness.mjs'), harness, 'utf8')
+
+  const target = (f) => join(root, 'agent-presets', 'engineering-router', f)
+  const before = new Map(SYNC_TARGETS.map((f) => [f, readFileSync(target(f))]))
+  const lockBefore = readFileSync(join(root, 'upstream.lock.json'))
+  try {
+    const run = spawnSync(process.execPath, [join(root, 'harness.mjs'), ''], { encoding: 'utf8' })
+    assert.notEqual(run.status, 0, 'a sync with a failing fetch must exit non-zero')
+    assert.match(`${run.stdout}${run.stderr}`, /injected upstream fetch failure/, 'the injected fetch failure must be the cause')
+    for (const f of SYNC_TARGETS) {
+      assert.ok(before.get(f).equals(readFileSync(target(f))), `${f} must be byte-identical after a failed fetch`)
+    }
+    assert.ok(lockBefore.equals(readFileSync(join(root, 'upstream.lock.json'))), 'upstream.lock.json must be byte-identical after a failed fetch')
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('a successful sync still rewrites every patched target (barrier control)', () => {
+  const { root, run, before, after, lockBefore, lockAfter } = runIsolatedSync()
+  try {
+    assert.equal(run.status, 0, `sync must succeed: ${run.stdout}${run.stderr}`)
+    for (const f of PATCHED_TARGETS) {
+      assert.ok(!before.get(f).equals(after.get(f)), `${f} must be rewritten by a successful sync`)
+    }
+    // the selftest gets the standard header but NO structural patch
+    const selftest = after.get('router-bootstrap-v34.selftest.mjs').toString('utf8')
+    assert.match(selftest, /^\/\/ Modified by dsh-engineering-router:/, 'the selftest receives the standard header')
+    assert.doesNotMatch(selftest, /engineering_review|intent-policy\.mjs/, 'no structural patch may be injected into a checker file')
+    for (const f of HEADER_ONLY_TARGETS) {
+      assert.ok(!before.get(f).equals(after.get(f)), `${f} must receive the header comment`)
+    }
+    // files the sync copies verbatim must pass through untouched
+    for (const f of VERBATIM_TARGETS) {
+      assert.ok(before.get(f).equals(after.get(f)), `${f} is copied verbatim and must be unchanged`)
+    }
+    assert.ok(!lockBefore.equals(lockAfter), 'upstream.lock.json must be updated on success')
+    const boot = after.get('router-bootstrap-v34.mjs').toString('utf8')
+    assert.match(boot, /from '\.\/intent-policy\.mjs'/, 'the local overlay must still be wired in')
+    assert.match(boot, /name: 'router-intent'/, 'the intent section must still be re-applied')
+    assert.match(after.get('agent.cordis.yml').toString('utf8'), /prefix:/, 'persona must be normalised to config.prefix')
+  } finally {
+    rmSync(root, { recursive: true, force: true })
   }
 })
