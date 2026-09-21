@@ -183,6 +183,41 @@ export function intentGuidance(intent) {
   return guidance[intent] || guidance.unknown
 }
 
+/**
+ * P3-A Completion Contract: what "done" means for a given intent.
+ *
+ * These are COMPLETION CONDITIONS, not steps. They deliberately contain no
+ * ordering, so injecting them can never turn the Router back into a fixed
+ * research -> plan -> implement -> verify pipeline: the phase gate still owns
+ * when those things happen, and most tasks need only some of them.
+ *
+ * Read-only intents state the bar for their own deliverable (an answer, a
+ * plan, findings) and do NOT restate their read-only boundary, which
+ * {@link intentGuidance} already carries — repeating it would be pure prompt
+ * overhead. `unknown` maps to no contract at all: an unclassified request must
+ * not be inflated, and the global AGENTS rules ("Verify before claiming",
+ * "Implemented != Verified != ...") remain the backstop there.
+ */
+const COMPLETION_CONTRACTS = Object.freeze({
+  implement: 'Done means: the requested result exists, the behavior it changes is verified with real evidence, and problems this change caused are resolved. An unverified implementation is not complete; a genuine external blocker is reported, not papered over.',
+  fix: 'Done means: the reported problem is actually gone under real evidence, with no regression this fix introduced. An unverified fix is not a fix; a genuine external blocker is reported, not papered over.',
+  investigate: 'Done means: the question is answered from the real system and the diagnosis is stated, even when it stops short of a change.',
+  research: 'Done means: an evidence-backed answer to what was asked - inspection or authoritative sources, not recollection.',
+  plan: 'Done means: a decision-complete plan another engineer could execute without making further design decisions.',
+  review: 'Done means: findings reported with evidence, each marked PASS / FAIL / UNVERIFIED - missing evidence is UNVERIFIED, never PASS.',
+  continue: 'Done means: the underlying task reaches the bar it would have if requested now - verified result, no unresolved problems this work caused, genuine blockers reported.',
+})
+
+/**
+ * Completion condition for one intent, or `''` when this intent carries none.
+ * Returning `''` is the minimal-prompt path: the caller appends nothing.
+ * @param intent - an intent id from {@link classifyIntent}.
+ * @returns the contract sentence, or an empty string.
+ */
+export function completionContract(intent) {
+  return COMPLETION_CONTRACTS[intent] || ''
+}
+
 /** Per-session mode derived from durable events (resume-safe). */
 export function sessionMode(session) {
   const events = session.events || (typeof session.snapshotEvents === 'function' ? session.snapshotEvents() : [])
