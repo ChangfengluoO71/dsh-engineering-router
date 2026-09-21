@@ -544,14 +544,16 @@ Graphify query/path/explain
 
 ## 13. 推荐的日常最短路径
 
-如果你已经安装并正常运行，日常其实可以压缩成：
+如果你已经安装并正常运行，日常用户流程其实可以压缩成：
 
 ~~~text
 ① 新建 Engineering Router Session
         ↓
-② 让 Agent 先检查 AGENTS / Trellis / Git / architecture
+② 直接表达你要达成的结果
         ↓
-③ Research → Design → Implement
+③ Router 在需要时自行检查、调研和规划
+        ↓
+④ Implement → Verify → 按风险 Review
         ↓
 ④ focused tests / regression / build / real run
         ↓
