@@ -2,7 +2,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { normalizePersonaConfig } from './compat-patches.mjs'
+import { patchAgentCordis, patchBootstrap } from './sync-patches.mjs'
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url))
 const LOCK_FILE = join(ROOT, 'upstream.lock.json')
@@ -26,6 +26,13 @@ if (!/^[0-9a-f]{40}$/i.test(ref)) {
   ref = meta.sha
 }
 
+/**
+ * Files replaced from upstream on every sync. Everything here is upstream-owned
+ * and may be overwritten; local additions must NOT be carried by any of these
+ * files, or they will be lost. Local, project-owned code belongs in modules that
+ * are absent from this list — currently `intent-policy.mjs`. Do not add it here:
+ * it does not exist upstream.
+ */
 const files = [
   'agent.cordis.yml',
   'preset.yml',
@@ -37,84 +44,29 @@ const files = [
   'router-core-v34.mjs',
 ]
 
-function replaceRequired(c, before, after, label) {
-  if (!c.includes(before)) throw new Error('upstream shape changed; cannot apply local patch: ' + label)
-  return c.replace(before, after)
-}
-
-const REVIEW_TOOL_YAML = [
-  '    # Fresh, read-only reviewer: no implementer history, mutation, or delegation.',
-  '    - id: tool-subagent-engineering-review',
-  "      name: '@deepseek-ai/dsh-tool-subagent'",
-  '      config:',
-  '        provider: spawn',
-  '        toolName: engineering_review',
-  '        enableRunInBackground: false',
-  '        backgroundMode: one-shot',
-  '        maxDepth: 1',
-  '        toolFilter:',
-  '          allow:',
-  '            - phase_begin',
-  '            - read',
-  '            - glob',
-  '            - grep',
-  '        persona: |',
-  '          You are an independent senior engineering reviewer operating in a fresh context.',
-  '          Treat the implementer\'s report, rationale, and test claims as unverified until supported by repository evidence.',
-  '          Start from the supplied review package and requirements. Review spec compliance, code quality, and chain integrity.',
-  '          For every behavior-level acceptance criterion, trace the implemented path as far as applicable:',
-  '          Requirement/AC -> Entry Point -> Boundary/Interface -> Core Logic -> State/Persistence -> Downstream Consumer -> Observable Result -> Verification Evidence.',
-  '          Call phase_begin once if the inherited Router bootstrap requires it; after that use only read, glob, and grep. You are strictly workspace-read-only: do not edit files, run shell commands, dispatch subagents, or manufacture evidence.',
-  '          Do not broaden into a repository-wide crawl unless a concrete cross-cutting risk requires one focused check; state the risk and what you inspected.',
-  '          Missing evidence is UNVERIFIED, never PASS. A passing unit test does not prove an end-to-end chain unless it exercises the relevant boundary.',
-  '          Findings must cite file:line when possible and separate Critical, Important, and Minor severity.',
-  '          Return exactly these sections: Status, Spec Compliance, Chain Integrity, Test Evidence, Findings, Chain Evidence, Unverified, Required Follow-up.',
-  '          Status is PASS only when no Critical/Important issue remains and every required chain is evidenced; otherwise use FAIL or UNVERIFIED.',
-  '',
-].join('\n')
-
-function patchBootstrap(c) {
-  let out = c
-    .replaceAll("process.env.DSH_HOME || homedir()", "dshHomeForState()")
-    .replaceAll("join(dshHomeForState(), 'router-standard',", "join(dshHomeForState(), 'engineering-router',")
-    .replaceAll("Symbol.for('router-standard.restrictLift')", "Symbol.for('engineering-router.restrictLift')")
-    .replaceAll("Symbol.for('router-standard.overrides')", "Symbol.for('engineering-router.overrides')")
-
-  if (!out.includes("'engineering_review'")) {
-    out = replaceRequired(
-      out,
-      "{ name: '验证', tools: ['pwsh', 'bash', 'read_image', 'job_list', 'job_output', 'job_kill'] },",
-      "{ name: '验证', tools: ['pwsh', 'bash', 'read_image', 'job_list', 'job_output', 'job_kill', 'engineering_review'] },",
-      'verification stage reviewer tool',
-    )
-  }
-  return out
-}
-
-function patchAgentCordis(c) {
-  let out = normalizePersonaConfig(c).replace(
-    '# The `router-standard` agent preset:',
-    '# The `engineering-router` agent preset (derived from router-standard):',
-  )
-  if (out.includes('toolName: engineering_review')) return out
-
-  const anchor = [
-    '    - id: tool-subagent-fork',
-    "      name: '@deepseek-ai/dsh-tool-subagent'",
-    '      config:',
-    '        provider: fork',
-    '        toolName: subagent_fork',
-    '        backgroundMode: continuable',
-    '',
-  ].join('\n')
-  return replaceRequired(out, anchor, anchor + REVIEW_TOOL_YAML, 'reviewer subagent row')
-}
-
+/**
+ * Mutation barrier: fetch and render EVERYTHING before the first write.
+ *
+ * Phase 1 (fetch) and phase 2 (patch) only build in-memory maps, so a network
+ * failure or a patch/anchor failure aborts with ZERO worktree mutation. Without
+ * this, a mid-loop failure left the earlier files already rewritten and the
+ * rest untouched — a partial sync (verified by failure injection, P3-B).
+ *
+ * Phase 3 is the first and only place that touches the worktree. It is not
+ * atomic per file: a failure while writing target N still leaves targets
+ * 1..N-1 written. That residual write-phase window is deliberately out of scope.
+ */
+const fetched = new Map()
 for (const file of files) {
   const url = 'https://raw.githubusercontent.com/' + repo + '/' + ref + '/preset/router-standard/' + file
-  let c = await text(url)
+  fetched.set(file, await text(url))
+}
+
+const rendered = new Map()
+for (const file of files) {
+  let c = fetched.get(file)
   if (file.startsWith('router-bootstrap')) {
-    c = '// Modified by dsh-engineering-router: isolate persistent/global router state from router-standard.\n' + patchBootstrap(c)
+    c = '// Modified by dsh-engineering-router: isolate persistent/global router state from router-standard.\n' + patchBootstrap(c, file)
   } else if (file === 'agent.cordis.yml') {
     c = patchAgentCordis(c)
     c = '# Upstream snapshot: ' + repo + '@' + ref + '\n# Personal engineering policy is intentionally kept in $DSH_HOME/AGENTS.md and skills.\n' + c
@@ -123,9 +75,13 @@ for (const file of files) {
       + 'description: "Personal engineering preset: upstream Router Standard runtime + global research-first/context/evidence rules + Trellis/Graphify project workflow integration."\n'
       + 'order: 2\n'
   }
+  rendered.set(file, c)
+}
+
+for (const file of files) {
   const dest = join(ROOT, 'agent-presets', 'engineering-router', file)
   mkdirSync(dirname(dest), { recursive: true })
-  writeFileSync(dest, c, 'utf8')
+  writeFileSync(dest, rendered.get(file), 'utf8')
 }
 
 lock.dshRoutingSuite.ref = ref

@@ -44,19 +44,21 @@ $DSH_HOME/
 
 ## 使用说明
 
-现在单独提供完整的[使用说明](docs/USAGE.zh-CN.md)，覆盖安装验证、新 Session 选择、Trellis / Graphify 接入、Independent Review Gate、升级/卸载、高级配置和常见问题。
+现在单独提供[快速开始](docs/QUICKSTART.zh-CN.md)和完整的[使用说明](docs/USAGE.zh-CN.md)，完整说明覆盖安装验证、新 Session 选择、Trellis / Graphify 接入、Independent Review Gate、升级/卸载、高级配置和常见问题。
 
 日常最短路径：
 
 ```text
-新建 Engineering Router Session
-  → 检查 AGENTS / Trellis / Git / architecture
-  → Research → Design → Implement
-  → focused verification
-  → engineering_review
-  → 修复 findings / UNVERIFIED
-  → scoped re-review
-  → project acceptance
+只告诉 Engineering Router 你要什么结果：
+  实现 <目标>
+  修复 <问题>
+  调查 <问题>
+  研究 <主题>
+  规划 <目标>
+  审查 <范围>
+
+Router 自己决定什么时候检查、调研、规划、验证和审查。
+除非你有特殊约束，否则不需要手工描述内部工作流。
 ```
 
 ## 升级
@@ -138,7 +140,7 @@ Reviewer 的判断不是最终 Acceptance Authority。测试、契约、构建�
 全局受管 AGENTS 规则块执行以下跨项目工程行为：
 
 - 修改前先理解；
-- Research → Design/Plan → Implement → Verify；
+- 在不确定性会影响决策时进行 Research；
 - **Adopt → Adapt → Build**；
 - Search before Ask；
 - Minimum Sufficient Context；

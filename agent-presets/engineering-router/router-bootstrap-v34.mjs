@@ -18,6 +18,9 @@
 import {
   bandFor, sessionMode, extractText, isComplexTask, sessionEvents
 } from './router-core-v34.mjs'
+// Local, project-owned intent policy (P1/P2 classification + P3-A completion
+// contract). Kept OUT of the vendored core so an upstream sync cannot drop it.
+import { classifyIntent, intentGuidance, completionContract } from './intent-policy.mjs'
 import { join, dirname } from 'node:path'
 import { homedir, tmpdir } from 'node:os'
 import { pathToFileURL } from 'node:url'
@@ -663,6 +666,14 @@ export function apply(ctx, config) {
       try { installMetaShim(agent, { installStage: true, stage }); shimmedSessions.add(session.id) } catch { /* ignore */ }
     }
     sections.push({ name: 'router-stage', order: 1, text: stageText(stage, muteAwareList(runtimeCallable(toolsSvc, agent), memoryMuted(session)), memoryMuted(session), firstUserTask(session)) })
+    const taskIntent = classifyIntent(firstUserTask(session))
+    // P3-A: the completion contract rides INSIDE the existing intent section.
+    // It is a completion condition, not a workflow step, and it is empty for
+    // intents that carry none — those turns pay zero extra prompt, and no new
+    // section is introduced, so section ordering and the phase gate are
+    // untouched.
+    const contract = completionContract(taskIntent)
+    sections.push({ name: 'router-intent', order: 1.5, text: contract ? intentGuidance(taskIntent) + ' ' + contract : intentGuidance(taskIntent) })
     // 声明与主动性常驻（人设常驻：不经压缩丢失；bootstrap 消息可能被 compaction 剪掉）
     sections.push({ name: 'router-decl', order: 2, text: PROGRESSIVE_DECL })
     sections.push({ name: 'router-proactivity', order: 3, text: PRESSURE_GUIDE.replace(/^\n+/, '') })
