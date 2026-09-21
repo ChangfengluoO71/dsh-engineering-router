@@ -11,7 +11,7 @@ Engineering Router is a DSH engineering environment rather than a standalone cha
 | Layer | Purpose | When you notice it |
 |---|---|---|
 | Engineering Router preset | Routing, staged tool exposure, plan/delivery behavior | Every new Engineering Router session |
-| Global AGENTS rules | Research → Design → Implement → Verify, Git safety, evidence discipline | Applicable engineering tasks |
+| Global AGENTS rules | Research when uncertainty matters, smallest complete changes, verification, Git safety, evidence discipline | Applicable engineering tasks |
 | engineering-project-bootstrap Skill | Trellis / Graphify project onboarding | New projects and repository onboarding |
 | engineering-review-gate Skill | Fresh-context Reviewer + Chain Integrity | Non-trivial changes and merge gates |
 
